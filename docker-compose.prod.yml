@@ -1,0 +1,93 @@
+# Production stack (F-03). The dev stack (docker-compose.yml) is untouched.
+#
+#   docker compose -f docker-compose.prod.yml up -d --build
+#
+# Differences from dev:
+#   - frontend: built once and served by nginx (no Vite dev server); nginx
+#     proxies /api, /ws and /healthz to the backend. Nothing is published on
+#     the LAN: the UI and the API are bound to 127.0.0.1 only.
+#   - backend: `prod` image target (gunicorn, 1 worker, no --reload, no
+#     bind-mounted source).
+#   - db: NOT published on the host at all; reachable only on this
+#     project's internal network.
+#   - POSTGRES_PASSWORD and ADMIN_PASSWORD have no defaults; compose refuses
+#     to start without them.
+#
+# `name:` pins the project so a forgotten `-p` can never fall back to the
+# directory name (which is the DEV project's name). Volume keys are
+# prod-specific and never declared `external`/`name:`, so they always resolve
+# to <project>_prod_pgdata / <project>_prod_data. Validation runs use
+# `-p <other-name>` to get a fully separate set.
+name: aoi-prod
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: aoi
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD (URL-safe, e.g. 32 hex chars) in the env file}
+      POSTGRES_DB: aoi
+    volumes:
+      - prod_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aoi -d aoi"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./backend
+      target: prod
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql+psycopg://aoi:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}@db:5432/aoi
+      AOI_DATA_DIR: /data
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?set a strong ADMIN_PASSWORD in the env file}
+      SENDER_EMAIL: ${SENDER_EMAIL:-}
+      SENDER_PASSWORD: ${SENDER_PASSWORD:-}
+      RECIPIENT_EMAILS: ${RECIPIENT_EMAILS:-}
+      COMPANY_NAME: ${COMPANY_NAME:-Innotech Integration}
+      MACHINE_NAME: ${MACHINE_NAME:-AOI Tester - M03}
+      AOI_REQUIRE_STATION_TOKEN: ${AOI_REQUIRE_STATION_TOKEN:-0}
+      AOI_STATION_TOKEN: ${AOI_STATION_TOKEN:-}
+    # Loopback only, for local health checks; browsers go through nginx.
+    ports:
+      - "127.0.0.1:${AOI_PROD_API_PORT:-8011}:8000"
+    volumes:
+      - prod_data:/data
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/healthz', timeout=3)"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    # Lets gunicorn finish in-flight requests (e.g. an /analyze write) on stop.
+    stop_grace_period: 30s
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_STATION_TOKEN: ${AOI_STATION_TOKEN:-}
+    depends_on:
+      backend:
+        condition: service_healthy
+    # Loopback only: the UI is used on the station itself (the camera needs
+    # localhost anyway). Exposing it on the LAN is a deliberate, approved
+    # change to this line, not a setting.
+    ports:
+      - "127.0.0.1:${AOI_PROD_HTTP_PORT:-5174}:80"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1/"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+volumes:
+  prod_pgdata:
+  prod_data:

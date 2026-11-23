@@ -1,0 +1,228 @@
+# AOI Assistant - how-to cards (chat step 2). Shown to the user WORD FOR WORD.
+# The assistant never writes these answers itself; it only picks a card.
+# Every fact below was checked against the code listed in `verified_from`
+# (development copy, snapshot prechat1 + chat step 1). Re-check a card when
+# the code it cites changes.
+#
+# Fields: id, audience, title, triggers (example phrasings for matching),
+#         answer (exact text shown), link (optional page), verified_from.
+# STATUS: draft, awaiting review. Nothing loads this file yet.
+
+version: 1
+cards:
+
+  - id: camera_not_ready
+    audience: [operator]
+    title: Camera says not ready
+    triggers:
+      - camera says not ready
+      - camera not working
+      - camera unavailable
+      - acquiring camera
+      - capture button is disabled
+      - not detected align both wires
+      - camera not ready what should I do
+    answer: |
+      What you see on the camera tells you what is wrong:
+
+      - "Acquiring camera…" stays on screen: the browser is still opening the camera.
+        Wait a few seconds. If it doesn't go away, check the camera cable, then pick
+        the right camera under Session setup → Camera.
+      - "Camera unavailable": the browser couldn't open the camera. Allow camera access
+        for this page (camera icon in the address bar), close any other program that is
+        using the camera, re-plug it, then reload the page (F5).
+      - Red badge "NOT DETECTED - align both wires (green, yellow)": the camera works,
+        but it can't see both wires. Place both wires fully inside the guide frame.
+        You can zoom with + and -. CAPTURE unlocks when the badge turns green
+        ("Aligned").
+      - No badge at all: the wire check only runs during a live session.
+        Start a session first.
+
+      If the wires are inside the frame and it still says NOT DETECTED, tell your
+      supervisor. The lighting or camera position may have changed.
+    verified_from:
+      - 'frontend/src/components/CameraView.tsx (texts "Acquiring camera…", "Camera unavailable", "NOT DETECTED - align both wires (green, yellow)", "Aligned - … detected"; zoom buttons)'
+      - 'frontend/src/hooks/useReadinessProbe.ts (probe runs only when enabled, camera ready and no camera error; paused while busy or tab hidden)'
+      - 'frontend/src/routes/Dashboard.tsx (probe enabled only while a session is active; CAPTURE disabled unless readiness is "ready"; + / - hotkeys)'
+      - 'frontend/src/components/ContextBar.tsx (Session setup "Camera" picker)'
+
+  - id: start_session
+    audience: [operator]
+    title: How do I start a new session?
+    triggers:
+      - how do I start a new session
+      - start session
+      - begin inspection
+      - how to start testing
+      - new session
+    answer: |
+      1. On the Dashboard, in Session setup on the left, choose the Operator and the
+         First-piece inspector.
+      2. Click the green "Start session" button. The top bar changes to "Session live"
+         with a timer.
+      3. Put both wires inside the guide frame. When the badge turns green, press
+         CAPTURE or the Space bar.
+      4. When you are finished, click "End session".
+
+      If you see "Pick an operator and inspector first.", one of the two is not
+      selected. You can't change the operator or inspector while a session is live.
+      End the session first.
+    verified_from:
+      - 'frontend/src/routes/Dashboard.tsx (start(): "Pick an operator and inspector first."; buttons "Start session", "CAPTURE" with Space, "End session"; ContextBar locked while active)'
+      - 'frontend/src/components/ContextBar.tsx (captions "Operator", "First-piece inspector")'
+      - 'frontend/src/App.tsx (header "Session live · <timer>" / "No active session")'
+
+  - id: restart_stuck_live
+    audience: [operator, inspector, admin]
+    title: Stuck on "Session live" after a restart. Is my data safe?
+    triggers:
+      - the app looks stuck on live after a restart
+      - is my data safe
+      - session live after restart
+      - unknown session
+      - session is not active
+      - end session not working
+      - capture not working after restart
+    answer: |
+      Captures that were saved before the restart are safe. Each capture is saved to
+      the database, with its photo, at the moment it is taken. They still count in the
+      Today card and in Reports.
+
+      What a restart does lose is the live session itself. The screen can keep showing
+      "Session live" with a running timer, but the session no longer exists. The
+      on-screen session counters stop updating, CAPTURE fails with "Session is not
+      active", and "End session" fails with "Unknown session". A capture that fails
+      with one of these messages was not saved.
+
+      What to do:
+      1. Reload the page (F5). It returns to "No active session".
+      2. Choose the operator and inspector again and click "Start session".
+      3. Re-test any cable whose capture failed after the restart.
+
+      If you are not sure whether the cable you tested right at the moment of the
+      restart was saved, check today's report. Testing it again adds a second record
+      for that cable.
+
+      The old session stays marked as open in the database. This does not change any
+      counts or reports. A permanent fix for this restart behaviour is still pending.
+    verified_from:
+      - 'reports/F08_INVESTIGATION.md section 2 (reproduced restart + reload: UI stays SESSION LIVE, counts frozen, analyze 404 "Session is not active", stop 404 "Unknown session", only a browser reload clears it; captures and daily summary unchanged; sessions row left with ended_at NULL)'
+      - 'backend/app/routers/analyze.py (inactive session -> 404 before any image or row is written)'
+      - 'backend/app/routers/sessions.py (stop of an unknown session -> 404 "Unknown session")'
+      - 'backend/app/adapters/legacy.py get_daily_summary and routers/reports.py (totals read from captures, not from the session)'
+      - 'F-08 status: deferred (critical-only scope), no fix implemented'
+
+  - id: add_person
+    audience: [admin]
+    title: How do I add a new operator or inspector?
+    triggers:
+      - how do I add a new operator
+      - add inspector
+      - new operator
+      - register employee
+      - add a person
+      - remove operator
+    answer: |
+      1. Open "Admin" in the left menu.
+      2. If you see "Admin sign-in required", enter the admin password and click
+         "Unlock".
+      3. In the "Operators" card (or "First-piece inspectors"), click "Add".
+      4. Enter the ID (for example EMP010) and the Name, then click "Save".
+
+      The new person appears in the Session setup lists on the Dashboard. Each ID must
+      be unique: a repeated ID is refused with "… ID already exists". Someone who
+      already has test history can't be removed, so their reports stay complete.
+    verified_from:
+      - 'frontend/src/components/Sidebar.tsx (nav "Admin" -> /settings)'
+      - 'frontend/src/components/settings/AdminGate.tsx ("Admin sign-in required", "Unlock")'
+      - 'frontend/src/components/settings/EmployeesCard.tsx / InspectorsCard.tsx (titles "Operators", "First-piece inspectors"; "Add" button; dialog "Add operator"/"Add inspector"; invalidates the shared "employees"/"inspectors" query used by the Dashboard)'
+      - 'frontend/src/components/settings/PersonFormDialog.tsx (fields "ID" placeholder "e.g. EMP010", "Name"; "Save")'
+      - 'backend/app/adapters/legacy.py ("Employee ID already exists" / "Inspector ID already exists"; "… has test history and cannot be removed")'
+
+  - id: change_wire_order
+    audience: [admin]
+    title: Change the expected wire colour order
+    triggers:
+      - change the expected wire colour order
+      - change wire order
+      - expected colour order
+      - new cable type
+      - swap expected colours
+    answer: |
+      The expected order (yellow on the left, green on the right, from the operator's
+      side) is built into the inspection software. No screen in the app can change it.
+
+      Changing it is a software change. Ask the maintenance engineer. They change it,
+      re-test the station with known good and bad cables, and update the station.
+      Captures that are already saved keep the order they were checked against, so
+      past reports don't change.
+    verified_from:
+      - 'backend/app/services/detector_core.py line 63 (EXPECTED_ORDER = ["yellow", "green"], operator-relative left -> right; used by evaluate_frame and /api/detect/peek)'
+      - 'backend/legacy/config.py line 48 (EXPECTED_WIRE_ORDER, legacy copy of the same order)'
+      - 'backend/app/db/models.py (captures.expected_order stored per capture)'
+      - 'no settings route or UI control exists for the order (frontend routes/Settings.tsx shows "Detection target" read-only)'
+
+  - id: daily_count_vs_dashboard
+    audience: [inspector, admin]
+    title: Why is the daily count different from the dashboard?
+    triggers:
+      - why is the daily count different from what I see on the dashboard
+      - counts don't match
+      - today total wrong
+      - report count different
+      - numbers don't add up
+    answer: |
+      The screens count different things:
+
+      - Session counters ("OK · n", "NOT OK · n" and "PASS RATE" above the capture
+        history): only the current session, and only OK and NOT OK. They start from 0
+        with each new session.
+      - Today card ("Today · <date>"): every session and every operator since 00:00
+        today (India time). Its "total captures" also includes NOT DETECTED captures,
+        so the total can be bigger than OK + NOT OK.
+      - Reports and "Export daily report": 00:00 to 23:59 India time. A capture made in
+        the last minute before midnight (23:59:01 to 23:59:59) is not included, so near
+        midnight the report can be slightly lower than the Today card.
+
+      The Today card updates after every capture and every 5 seconds during a session.
+      When no session is running it doesn't refresh by itself, so reload the page to
+      see the latest. After a backend restart the session counters stop updating.
+      See "Stuck on Session live after a restart".
+    verified_from:
+      - 'frontend/src/components/CaptureHistory.tsx (tabs "OK · n", "NOT OK · n", "PASS RATE" from the session''s ok_count / not_ok_count)'
+      - 'backend/app/services/session_manager.py record_capture (counts only "OK" and "NOT OK"; per session)'
+      - 'backend/app/adapters/legacy.py get_daily_summary (all captures where date(captured_at) = current_date, IST session timezone; total_count includes every result)'
+      - 'frontend/src/components/DailySummary.tsx ("Today · <date>", legend "total captures" / "OK" / "NOT OK"; polls every 5 s only while a session is active; refetches when session counts change)'
+      - 'frontend/src/lib/rangeReport.ts stationDayBounds + backend/app/routers/reports.py (T00:00..T23:59, captured_at <= end -> 23:59:01-23:59:59 excluded; pinned in tests/test_chat_intents.py)'
+
+  - id: backup_before_shutdown
+    audience: [admin]
+    title: How do I take a backup before shutting down?
+    triggers:
+      - how do I take a backup before shutting down
+      - backup
+      - back up the data
+      - save data before shutdown
+      - export database
+    answer: |
+      Do this between shifts, when nobody is testing.
+
+      1. End any live session on the Dashboard. The backup refuses to run while a
+         session is live.
+      2. Make sure Docker Desktop is running. On the station PC, open PowerShell in the
+         AOI-BuLLMQuality folder and run:
+           .\scripts\backup-aoi.ps1 -ComposeFile docker-compose.prod.yml -Project aoi-prod
+      3. The app stops for a short time while the backup runs and starts again on its
+         own. Wait until the script finishes.
+      4. The files are saved in the "backups" folder inside AOI-BuLLMQuality: the
+         database (.dump), the capture photos (.data.tgz), a checksum list and a
+         manifest.
+      5. Copy the backup files off this PC (USB drive or network share). If this PC's
+         disk fails, backups stored on it are lost too.
+
+      If the script says a session is active, end the session and run it again.
+      Only an admin should use -ConfirmInterruption, because it ends live sessions.
+    verified_from:
+      - 'scripts/backup-aoi.ps1 header (session checks, exit 2 = refused: active sessions; stops frontend + backend, Postgres keeps running; pg_dump + /data archive + sha256 + manifest; restarts what it stopped; default -OutDir <repo>\backups; example for aoi-prod; "Copy the backups off this machine"; -ConfirmInterruption ends sessions)'
+      - 'identical to the live checkout''s scripts/backup-aoi.ps1 (byte compare)'
+      - 'production project name aoi-prod (containers aoi-prod-*)'

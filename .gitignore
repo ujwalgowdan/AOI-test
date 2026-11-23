@@ -1,0 +1,72 @@
+# --- Python ---------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.coverage
+htmlcov/
+*.log
+
+# Virtual environments (legacy archive ships its own venv; keep it out)
+venv/
+.venv/
+env/
+.env
+.env.local
+.env.*.local
+
+# --- Node / Vite ----------------------------------------------------------
+node_modules/
+dist/
+build/
+.vite/
+.cache/
+*.tsbuildinfo
+playwright-report/
+test-results/
+
+# --- Generated launcher artifacts ----------------------------------------
+# scripts/aoi.ico is generated from frontend/public/innotech-logo.png by
+# scripts/install-desktop-icon.ps1 — regenerated on each machine, not vendored.
+scripts/aoi.ico
+
+# --- OS / Editor ----------------------------------------------------------
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# --- Claude Code working dir ---------------------------------------------
+.claude/
+
+# --- Operational data (operator/inspector PII, captured frames, reports) -
+# The repo ships seed defaults via backend/adapters/legacy.py — actual
+# runtime data should not be checked in.
+data/
+
+# --- Reference screenshots used for bug reports / spec discussion --------
+# Keep them out of the repo to avoid pushing huge PNGs. If a specific
+# screenshot needs to ship as a doc asset, add it explicitly via -f.
+Screenshots/
+Screenshot*.png
+Screenshot*.PNG
+NOT_OK_*.jpg
+OK_*.jpg
+NOT_DETECTED_*.jpg
+
+# --- Empty placeholder leftover from the move ----------------------------
+aoi_system_updated/
+
+# --- Legacy Streamlit reference ------------------------------------------
+# archive/legacy-streamlit/ is a working clone of the same repo at the
+# pre-rewrite commit (7cf0fd9). It has its own .git/ (so it'd commit as a
+# submodule pointer) and a local .env. Both contents and history are still
+# reachable on this repo via `git checkout 7cf0fd9`; no need to vendor it.
+archive/legacy-streamlit/
+
+# Local backups from scripts/backup-aoi.ps1 (database dumps + capture images).
+backups/

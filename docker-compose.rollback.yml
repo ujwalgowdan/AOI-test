@@ -1,0 +1,17 @@
+# Rollback target (F-03): the DEV stack, but every port on 127.0.0.1 only.
+# Use it only together with docker-compose.yml and an explicit project name,
+# after restoring a production backup into fresh volumes:
+#
+#   docker compose -f docker-compose.yml -f docker-compose.rollback.yml -p aoi-rollback up -d
+#
+# (see RUN-ON-ANOTHER-MACHINE.md, "Rolling back from production to dev").
+services:
+  db:
+    ports: !override
+      - "127.0.0.1:5433:5432"
+  backend:
+    ports: !override
+      - "127.0.0.1:8001:8000"
+  frontend:
+    ports: !override
+      - "127.0.0.1:5173:5173"

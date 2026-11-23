@@ -1,0 +1,9 @@
+[project]
+name = "aoi-backend"
+version = "3.0.0"
+description = "FastAPI backend for the Innotech AOI inspection system"
+requires-python = ">=3.12"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
