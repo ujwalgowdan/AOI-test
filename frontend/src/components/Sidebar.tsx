@@ -52,7 +52,7 @@ export function SidebarLayout({ children }: { children: React.ReactNode }) {
           <nav aria-label="Main" className="flex flex-col gap-2.5">
             <div className={cn("stage", setupDone && "done")}>
               <span className="stage-nm">
-                <span className="flex-1">Setup session</span>
+                <span className="flex-1">Session setup</span>
               </span>
               <div className="stage-st">Operator + inspector picked</div>
               <div ref={setSetup} data-slot="setup" className="mt-2 empty:hidden" />

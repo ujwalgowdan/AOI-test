@@ -102,7 +102,7 @@ describe("1. station rail: setup, live inspection, reports and settings stages",
     renderAt("/");
     const side = sidebar();
     const nav = within(side).getByRole("navigation", { name: "Main" });
-    const setupStage = within(nav).getByText("Setup session");
+    const setupStage = within(nav).getAllByText("Session setup")[0]; // stage name + ContextBar caption share the label
     const live = within(nav).getByRole("link", { name: /^Live inspection/ });
     const reports = within(nav).getByRole("link", { name: /^Reports/ });
     const settings = within(nav).getByRole("link", { name: /^Settings/ });
