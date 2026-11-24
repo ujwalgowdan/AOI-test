@@ -158,8 +158,7 @@ export function AssistantPanel() {
             role="log"
             aria-label="Conversation"
             aria-live="polite"
-            className="mt-2 flex flex-1 flex-col space-y-3 overflow-y-auto py-1"
-            style={{ minHeight: 90 }}
+            className="mt-2 flex min-h-0 flex-1 flex-col space-y-3 overflow-y-auto py-1"
           >
             {turns.length === 0 && (
               <div className="my-auto flex flex-col items-center justify-center gap-2">
