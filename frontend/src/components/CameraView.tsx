@@ -1,6 +1,6 @@
-import { Check, Loader2, Minus, Plus, TriangleAlert } from "lucide-react";
+import { Check, Loader2, TriangleAlert } from "lucide-react";
 
-import { type UseCameraResult, ZOOM_LEVELS } from "@/hooks/useCamera";
+import type { UseCameraResult } from "@/hooks/useCamera";
 import type { ReadinessState } from "@/hooks/useReadinessProbe";
 import { cn } from "@/lib/utils";
 
@@ -14,7 +14,7 @@ interface Props {
 const BRACKET = "absolute h-5 w-5 border-teal-400"; // teal-400 = #2dd4bf
 
 export function CameraView({ camera, readiness, children }: Props) {
-  const { videoRef, ready, error, zoom, setZoom, zoomIn, zoomOut } = camera;
+  const { videoRef, ready, error, zoom, setZoom } = camera;
   const live = ready && !error;
 
   return (
@@ -98,17 +98,6 @@ export function CameraView({ camera, readiness, children }: Props) {
           </output>
         )}
 
-        {live && (
-          <div className="absolute bottom-3 right-3 flex flex-row gap-1.5">
-            <ZoomButton onClick={zoomIn} disabled={zoom >= ZOOM_LEVELS[ZOOM_LEVELS.length - 1]} label="Zoom in (+)">
-              <Plus className="h-3.5 w-3.5" />
-            </ZoomButton>
-            <ZoomButton onClick={zoomOut} disabled={zoom <= ZOOM_LEVELS[0]} label="Zoom out (-)">
-              <Minus className="h-3.5 w-3.5" />
-            </ZoomButton>
-          </div>
-        )}
-
         {!ready && !error && (
           <div className="absolute inset-0 grid place-items-center text-sm text-slate-300">
             <div className="flex flex-col items-center gap-2">
@@ -153,31 +142,6 @@ export function CameraView({ camera, readiness, children }: Props) {
         </div>
       )}
     </section>
-  );
-}
-
-function ZoomButton({
-  onClick,
-  disabled,
-  label,
-  children,
-}: {
-  onClick: () => void;
-  disabled: boolean;
-  label: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={disabled}
-      aria-label={label}
-      title={label}
-      className="grid h-6 w-6 place-items-center rounded-md bg-white/15 font-bold text-white transition hover:bg-white/25 disabled:opacity-40"
-    >
-      {children}
-    </button>
   );
 }
 

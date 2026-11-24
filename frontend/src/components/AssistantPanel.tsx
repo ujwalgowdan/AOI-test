@@ -127,9 +127,16 @@ export function AssistantPanel({ big, onToggleBig }: { big: boolean; onToggleBig
     <section
       aria-label="BuLLM Assistant"
       className="assistant flex min-h-0 flex-col border-t"
-      style={{ borderColor: "var(--line)", flex: big ? "1 1 0" : "none" }}
+      // Normal mode: bottom section capped at ~35% of the camera card; only the
+      // message log (min-h-0 + overflow-y-auto) gives up space, so the camera,
+      // Zoom/CAPTURE row and status line above are never pushed or covered.
+      style={
+        big
+          ? { borderColor: "var(--line)", flex: "1 1 0" }
+          : { borderColor: "var(--line)", flex: "0 1 auto", maxHeight: "35%" }
+      }
     >
-      <div className="flex items-center gap-1.5 pt-2.5">
+      <div className="flex shrink-0 items-center gap-1.5 pt-2.5">
         <h3>
           <img src="/bull-head.png" alt="" className="bull" aria-hidden="true" />
           <b>BuLLM</b> <i>Assistant</i>
@@ -190,7 +197,7 @@ export function AssistantPanel({ big, onToggleBig }: { big: boolean; onToggleBig
 
           <form
             onSubmit={submit}
-            className="mb-0.5 mt-auto flex items-center gap-2 rounded-lg border px-2.5 py-1.5"
+            className="mb-0.5 mt-auto flex shrink-0 items-center gap-2 rounded-lg border px-2.5 py-1.5"
             style={{ borderColor: "var(--line)", background: "var(--soft2)" }}
           >
             <input
@@ -265,7 +272,7 @@ const SMART_TAGS: { label: string; prompt: string }[] = [
 
 function SmartTags({ onPick, disabled }: { onPick: (q: string) => void; disabled: boolean }) {
   return (
-    <div className="mb-2 mt-2 flex flex-wrap items-center gap-2" aria-label="Smart tags">
+    <div className="mb-2 mt-2 flex shrink-0 flex-wrap items-center gap-2" aria-label="Smart tags">
       {SMART_TAGS.map((t) => (
         <button
           key={t.label}
