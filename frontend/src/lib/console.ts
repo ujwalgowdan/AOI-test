@@ -5,7 +5,7 @@
 // shift. Edit here if the station moves; promote to an API field if it varies.
 export const STATION = {
   line: "Line 1",
-  name: "AOI Tester MKII",
+  name: "AOI Tester",
   shift: "Shift A",
   target: "Wire interchange · green / yellow order",
 } as const;

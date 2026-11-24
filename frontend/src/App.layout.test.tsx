@@ -112,7 +112,7 @@ describe("1. station rail: setup, live inspection, reports and admin stages", ()
     const setup = await within(side).findByRole("region", { name: "Session setup" });
     expect(within(setup).getByLabelText("Operator")).toBeInTheDocument();
     expect(within(setup).getByLabelText("First-piece inspector")).toBeInTheDocument();
-    expect(within(side).getByText(/Station - AOI Tester MKII/)).toBeInTheDocument();
+    expect(within(side).getByText(/Station - AOI Tester$/)).toBeInTheDocument();
   });
 
   it("session-setup selects keep their behaviour (options, selection, lock while live)", async () => {

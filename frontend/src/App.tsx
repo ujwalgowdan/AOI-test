@@ -13,6 +13,7 @@ import { SidebarLayout } from "./components/Sidebar";
 import Dashboard from "./routes/Dashboard";
 import Reports from "./routes/Reports";
 import Settings from "./routes/Settings";
+import SpcChart from "./routes/SpcChart";
 
 export default function App() {
   const { adminToken, setAdminToken } = useSessionStore();
@@ -50,6 +51,7 @@ export default function App() {
             <Route path="/" element={<Dashboard />} />
             <Route path="/reports" element={<Reports />} />
             <Route path="/settings" element={<Settings />} />
+            <Route path="/quality/spc" element={<SpcChart />} />
           </Routes>
         </ErrorBoundary>
       </SidebarLayout>

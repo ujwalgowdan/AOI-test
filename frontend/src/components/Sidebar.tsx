@@ -135,6 +135,16 @@ export function SidebarLayout({ children }: { children: React.ReactNode }) {
               <div className="stage-st">Pass rate · ZIP · PDF range</div>
             </NavLink>
 
+            <NavLink
+              to="/quality/spc"
+              className={cn("stage", pathname.startsWith("/quality") && "active")}
+            >
+              <span className="stage-nm">
+                <span className="flex-1">Quality</span>
+              </span>
+              <div className="stage-st">SPC chart</div>
+            </NavLink>
+
             <NavLink to="/settings" className={cn("stage", pathname === "/settings" && "active")}>
               <span className="stage-nm">
                 <span className="flex-1">Admin</span>
