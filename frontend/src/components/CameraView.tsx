@@ -23,26 +23,6 @@ export function CameraView({ camera, readiness, children }: Props) {
       className="flex min-h-0 flex-1 flex-col overflow-hidden"
       style={{ minHeight: 280 }}
     >
-      <div
-        className="flex flex-wrap items-center gap-2 border-b px-3 py-2"
-        style={{ borderColor: "var(--line)" }}
-      >
-        <button
-          type="button"
-          aria-label={`Zoom ${zoom}×, click to switch to ${zoom === 3 ? 1 : 3}×`}
-          onClick={() => setZoom(zoom === 3 ? 1 : 3)}
-          className="h-8 rounded-md border px-3 text-xs font-semibold"
-          style={{
-            background: zoom === 3 ? "var(--orange)" : "var(--blue)",
-            borderColor: zoom === 3 ? "var(--orange)" : "var(--blue)",
-            color: zoom === 3 ? "var(--orange-ink)" : "var(--blue-ink)",
-          }}
-        >
-          Zoom {zoom}×
-        </button>
-        <span className="text-[11px] txf">Space to capture</span>
-      </div>
-
       {/* The overlay must share this box with <video>: useCamera.computeSourceRoi
           maps the same fractions through the video's rendered rect. */}
       <div
@@ -156,6 +136,19 @@ export function CameraView({ camera, readiness, children }: Props) {
           className="flex flex-wrap items-center gap-3 border-t px-3 py-2.5"
           style={{ borderColor: "var(--line)" }}
         >
+          <button
+            type="button"
+            aria-label={`Zoom ${zoom}×, click to switch to ${zoom === 3 ? 1 : 3}×`}
+            onClick={() => setZoom(zoom === 3 ? 1 : 3)}
+            className="h-8 rounded-md border px-3 text-xs font-semibold"
+            style={{
+              background: zoom === 3 ? "var(--orange)" : "var(--blue)",
+              borderColor: zoom === 3 ? "var(--orange)" : "var(--blue)",
+              color: zoom === 3 ? "var(--orange-ink)" : "var(--blue-ink)",
+            }}
+          >
+            Zoom {zoom}×
+          </button>
           {children}
         </div>
       )}

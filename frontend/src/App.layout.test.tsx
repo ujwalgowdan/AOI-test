@@ -198,13 +198,16 @@ describe("3. BuLLM Assistant panel (inline under the camera, collapsible)", () =
     expect(api.chat).not.toHaveBeenCalled(); // rendering asks nothing by itself
   });
 
-  it("collapses to its header and expands again", async () => {
+  it("enlarges to fill the pane (camera minimized) and shrinks back", async () => {
     renderAt("/");
     const assistant = screen.getByRole("region", { name: "BuLLM Assistant" });
-    fireEvent.click(within(assistant).getByRole("button", { name: "Collapse assistant" }));
-    expect(within(assistant).queryByLabelText("Question")).toBeNull();
-    fireEvent.click(within(assistant).getByRole("button", { name: "Expand assistant" }));
+    expect(screen.getByRole("region", { name: "Inspection camera" })).toBeInTheDocument();
+    fireEvent.click(within(assistant).getByRole("button", { name: "Enlarge assistant" }));
+    expect(screen.queryByRole("region", { name: "Inspection camera" })).toBeNull();
+    expect(screen.getByText(/Camera feed \(minimized\)/)).toBeInTheDocument();
     expect(within(assistant).getByLabelText("Question")).toBeInTheDocument();
+    fireEvent.click(within(assistant).getByRole("button", { name: "Shrink assistant" }));
+    expect(screen.getByRole("region", { name: "Inspection camera" })).toBeInTheDocument();
   });
 });
 

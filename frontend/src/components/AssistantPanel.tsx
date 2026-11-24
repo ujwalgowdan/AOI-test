@@ -1,4 +1,4 @@
-import { ChevronDown, Loader2, Mic, Plus, Send } from "lucide-react";
+import { Loader2, Maximize2, Mic, Minimize2, Plus, Send } from "lucide-react";
 import { type FormEvent, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
@@ -7,7 +7,6 @@ import {
   Answer,
   type ChatTurn,
   MAX_CHARS,
-  Starters,
   UNAVAILABLE,
 } from "@/components/ChatPanel";
 import { Button } from "@/components/ui/button";
@@ -16,11 +15,11 @@ import { useSessionStore } from "@/store/session";
 type NewTurn = ChatTurn extends infer T ? (T extends ChatTurn ? Omit<T, "id"> : never) : never;
 
 /** BuLLM Assistant, inline under the camera (same backend conversation as the
- *  chat sheet): smart tags centred above, ask bar pinned to the bottom. The
- *  chevron collapses the panel so the camera takes the whole pane. */
-export function AssistantPanel() {
+ *  chat sheet): smart tags above the ask bar, which is pinned to the bottom.
+ *  The enlarge icon grows the chat to fill the mid pane while the camera
+ *  shrinks to a slim bar (Dashboard swaps the feed out when `big` is set). */
+export function AssistantPanel({ big, onToggleBig }: { big: boolean; onToggleBig: () => void }) {
   const [turns, setTurns] = useState<ChatTurn[]>([]);
-  const [collapsed, setCollapsed] = useState(false);
   const [draft, setDraft] = useState("");
   const [busy, setBusy] = useState(false);
   const [listening, setListening] = useState(false);
@@ -128,45 +127,35 @@ export function AssistantPanel() {
     <section
       aria-label="BuLLM Assistant"
       className="assistant flex min-h-0 flex-col border-t"
-      style={{ borderColor: "var(--line)", flex: collapsed ? "none" : "3 1 0" }}
+      style={{ borderColor: "var(--line)", flex: big ? "1 1 0" : "none" }}
     >
       <div className="flex items-center gap-1.5 pt-2.5">
         <h3>
           <img src="/bull-head.png" alt="" className="bull" aria-hidden="true" />
           <b>BuLLM</b> <i>Assistant</i>
         </h3>
-        {collapsed && <span className="text-[11px] txf">- collapsed, camera has the full pane</span>}
         <button
           type="button"
-          onClick={() => setCollapsed((c) => !c)}
-          aria-expanded={!collapsed}
-          aria-label={collapsed ? "Expand assistant" : "Collapse assistant"}
-          title={collapsed ? "Expand assistant" : "Collapse assistant"}
+          onClick={onToggleBig}
+          aria-expanded={big}
+          aria-label={big ? "Shrink assistant" : "Enlarge assistant"}
+          title={big ? "Shrink assistant" : "Enlarge assistant"}
           className="ml-auto grid h-[22px] w-[22px] place-items-center rounded-md border txf transition hover:bg-[var(--soft)]"
           style={{ borderColor: "var(--line)", background: "var(--soft2)" }}
         >
-          <ChevronDown
-            className="h-3 w-3 transition-transform"
-            style={{ transform: collapsed ? "rotate(180deg)" : undefined }}
-          />
+          {big ? <Minimize2 className="h-3 w-3" /> : <Maximize2 className="h-3 w-3" />}
         </button>
       </div>
 
-      {!collapsed && (
+      {
         <>
+          {(turns.length > 0 || busy) && (
           <div
             role="log"
             aria-label="Conversation"
             aria-live="polite"
             className="mt-2 flex min-h-0 flex-1 flex-col space-y-3 overflow-y-auto py-1"
           >
-            {turns.length === 0 && (
-              <div className="my-auto flex flex-col items-center justify-center gap-2">
-                <div className="flex flex-wrap justify-center gap-1.5">
-                  <StartersRow onPick={ask} disabled={busy} />
-                </div>
-              </div>
-            )}
             {turns.map((t) =>
               t.role === "user" ? (
                 <p
@@ -195,20 +184,9 @@ export function AssistantPanel() {
             )}
             <div ref={endRef} />
           </div>
-
-          {turns.length > 0 && (
-            <details
-              className="mb-2 mt-1 rounded-md border px-2 py-1 text-sm"
-              style={{ borderColor: "var(--line)", background: "var(--soft2)" }}
-            >
-              <summary className="cursor-pointer select-none py-0.5 text-xs font-medium tx2">
-                Example questions
-              </summary>
-              <div className="max-h-40 overflow-y-auto py-2">
-                <Starters onPick={ask} disabled={busy} compact />
-              </div>
-            </details>
           )}
+
+          <SmartTags onPick={ask} disabled={busy} />
 
           <form
             onSubmit={submit}
@@ -270,39 +248,40 @@ export function AssistantPanel() {
             </Button>
           </form>
         </>
-      )}
+      }
     </section>
   );
 }
 
-/** Smart tags: the five operator questions, centred. */
-function StartersRow({ onPick, disabled }: { onPick: (q: string) => void; disabled: boolean }) {
-  const questions = [
-    "How many cables have I tested today?",
-    "Why did the last capture fail?",
-    "Show me the last failed capture.",
-    "How many OK vs NOT OK in this session?",
-    "Export today's report.",
-  ];
+/** Smart tags (RFQ_automation style): the five operator questions as short
+ *  blue-tinted chips above the ask bar; hover pops solid BuLLM blue. */
+const SMART_TAGS: { label: string; prompt: string }[] = [
+  { label: "Today's tests", prompt: "How many cables have I tested today?" },
+  { label: "Why capture failed", prompt: "Why did the last capture fail?" },
+  { label: "Last failed capture", prompt: "Show me the last failed capture." },
+  { label: "OK vs NOT OK", prompt: "How many OK vs NOT OK in this session?" },
+  { label: "Export report", prompt: "Export today's report." },
+];
+
+function SmartTags({ onPick, disabled }: { onPick: (q: string) => void; disabled: boolean }) {
   return (
-    <>
-      {questions.map((q) => (
+    <div className="mb-2 mt-2 flex flex-wrap items-center gap-2" aria-label="Smart tags">
+      {SMART_TAGS.map((t) => (
         <button
-          key={q}
+          key={t.label}
           type="button"
-          onClick={() => onPick(q)}
+          onClick={() => onPick(t.prompt)}
           disabled={disabled}
-          className="truncate rounded-full border px-3 py-1 text-center text-[11.5px] font-semibold transition hover:bg-[var(--blue-soft)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-innotech disabled:opacity-50"
+          className="smart-tag-chip rounded-full border px-3 py-1 text-xs font-semibold transition hover:-translate-y-0.5 hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-innotech disabled:opacity-50"
           style={{
-            flex: "1 1 30%",
-            borderColor: "var(--line)",
+            borderColor: "var(--blue)",
             background: "var(--blue-soft)",
             color: "var(--blue)",
           }}
         >
-          {q}
+          {t.label}
         </button>
       ))}
-    </>
+    </div>
   );
 }

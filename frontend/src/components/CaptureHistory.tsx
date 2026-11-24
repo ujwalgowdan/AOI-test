@@ -4,7 +4,6 @@ import { useState } from "react";
 import { withStationToken } from "@/api/client";
 import { ResultPill } from "@/components/console";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { clockTime, passRate, shortReason } from "@/lib/console";
 import { downloadRangePdf, stationDayBounds } from "@/lib/rangeReport";
 import { cn } from "@/lib/utils";
@@ -46,7 +45,7 @@ export function CaptureHistory() {
   ];
 
   return (
-    <Card className="rounded-xl p-3">
+    <div>
       <div role="tablist" aria-label="Capture history" className="grid grid-cols-3 gap-1.5">
         {tabs.map((t) => (
           <button
@@ -108,7 +107,7 @@ export function CaptureHistory() {
       </div>
 
       <ExportDailyReport />
-    </Card>
+    </div>
   );
 }
 

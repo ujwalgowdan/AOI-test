@@ -38,6 +38,8 @@ export default function Dashboard() {
 
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Enlarged assistant: the camera swaps to a slim bar so the chat gets the pane.
+  const [chatBig, setChatBig] = useState(false);
 
   const employees = useQuery({ queryKey: ["employees"], queryFn: api.listEmployees });
   const inspectors = useQuery({ queryKey: ["inspectors"], queryFn: api.listInspectors });
@@ -168,7 +170,7 @@ export default function Dashboard() {
   ) : active ? (
     "Verdict and wire order are checked on capture"
   ) : (
-    "Capture unlocks after a session starts and both wires sit inside the guide frame."
+    "Space to capture · unlocks after a session starts and both wires sit inside the guide frame."
   );
 
   return (
@@ -244,6 +246,16 @@ export default function Dashboard() {
             </span>
           </div>
           <div className="flex min-h-0 flex-1 flex-col overflow-hidden p-3">
+            {chatBig ? (
+              <button
+                type="button"
+                onClick={() => setChatBig(false)}
+                className="mb-2 flex flex-none items-center gap-2 rounded-lg border px-3 py-2 text-left text-xs font-semibold tx2"
+                style={{ borderColor: "var(--line)", background: "var(--soft2)" }}
+              >
+                ▸ Camera feed (minimized) · Zoom {camera.zoom}× · Space to capture
+              </button>
+            ) : (
             <div className="flex min-h-0 flex-[7_1_0] flex-col">
             <CameraView camera={camera} readiness={readiness}>
               <Button
@@ -264,7 +276,8 @@ export default function Dashboard() {
 
             </CameraView>
             </div>
-            <AssistantPanel />
+            )}
+            <AssistantPanel big={chatBig} onToggleBig={() => setChatBig((b) => !b)} />
           </div>
         </section>
 

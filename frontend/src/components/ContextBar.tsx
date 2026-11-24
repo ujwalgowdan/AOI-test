@@ -122,9 +122,6 @@ export function ContextBar({
 
   return (
     <section aria-label="Session setup" className="flex flex-col gap-2">
-      <h2 className="px-1 text-[11px] font-semibold uppercase tracking-wide text-[var(--faint)]">
-        Session setup
-      </h2>
       <Field caption="Unit">
         <ChipSelect
           label="Unit"
@@ -167,14 +164,9 @@ export function ContextBar({
           {inspector && <PersonText person={inspector} kind="first-piece inspector" />}
         </ChipSelect>
       </Field>
-      <Field caption="Shift / line · date">
-        <div className="px-1 text-xs text-[var(--ink2)]">
-          <span className="font-semibold">
-            {STATION.shift} · {STATION.line}
-          </span>
-          <div className="text-[11px] text-[var(--faint)]">{today}</div>
-        </div>
-      </Field>
+      <div className="px-1 text-xs text-[var(--ink2)]">
+        {STATION.shift} · {STATION.line} · {today}
+      </div>
       {cameras.length > 0 && (
         <Field caption="Camera">
           <ChipSelect
