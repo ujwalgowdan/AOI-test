@@ -9,6 +9,8 @@ import { cn } from "@/lib/utils";
 import { useSessionStore } from "@/store/session";
 import { useSoundStore } from "@/store/sound";
 import { ErrorBoundary } from "./components/ErrorBoundary";
+import { isAuthed } from "./features/login/auth";
+import { LoginPage } from "./features/login/LoginPage";
 import { SidebarLayout } from "./components/Sidebar";
 import Dashboard from "./routes/Dashboard";
 import Reports from "./routes/Reports";
@@ -18,6 +20,9 @@ import SpcChart from "./routes/SpcChart";
 export default function App() {
   const { adminToken, setAdminToken } = useSessionStore();
   useVerdictSound();
+  // Hosted deployment is gated behind the fixed operator login.
+  const [authed, setAuthed] = useState(isAuthed);
+  if (!authed) return <LoginPage onLogin={() => setAuthed(true)} />;
   return (
     <div className="flex h-full flex-col" style={{ background: "var(--bg)" }}>
       <header
