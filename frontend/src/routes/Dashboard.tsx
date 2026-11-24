@@ -261,16 +261,7 @@ export default function Dashboard() {
                 )}
               </Button>
               <p className="min-w-0 flex-1 text-xs txf">{hint}</p>
-              {active && (
-                <Button
-                  onClick={stop}
-                  disabled={busy}
-                  variant="outline"
-                  className="h-9 border-fail/40 text-fail hover:bg-[var(--red-fill)]"
-                >
-                  <Square className="h-3.5 w-3.5 fill-current" /> End session
-                </Button>
-              )}
+
             </CameraView>
             </div>
             <AssistantPanel />
@@ -287,6 +278,16 @@ export default function Dashboard() {
             <LastResultCard />
             <DailySummary />
             <CaptureHistory />
+            {active && (
+              <Button
+                onClick={stop}
+                disabled={busy}
+                variant="outline"
+                className="w-full flex-none border-fail/40 text-fail hover:bg-[var(--red-fill)]"
+              >
+                <Square className="h-3.5 w-3.5 fill-current" /> End session
+              </Button>
+            )}
           </div>
         </section>
       </div>

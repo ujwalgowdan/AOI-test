@@ -161,6 +161,12 @@ export const api = {
       body: JSON.stringify(p),
       headers: jsonHeaders(token, true),
     }),
+  updateEmployee: (id: string, body: Partial<Person>, token: string) =>
+    http(`/api/employees/${encodeURIComponent(id)}`, PersonSchema, {
+      method: "PUT",
+      body: JSON.stringify(body),
+      headers: jsonHeaders(token, true),
+    }),
   removeEmployee: (id: string, token: string) =>
     http(`/api/employees/${encodeURIComponent(id)}`, null, {
       method: "DELETE",

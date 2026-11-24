@@ -102,6 +102,38 @@ class _OperatorAdapter:
         )
 
     @staticmethod
+    def update_employee(
+        emp_id: str, name: Optional[str] = None, new_id: Optional[str] = None
+    ) -> tuple[str, str]:
+        """Rename and/or re-key an operator in one transaction.
+
+        Returns (status, message), status in {"ok", "not_found", "conflict"}.
+        `sessions`/`captures` FK `operators.id` without ON UPDATE CASCADE,
+        so an ID change is refused once the operator has history.
+        """
+        with SessionLocal() as db:
+            row = db.get(models.Operator, emp_id)
+            if row is None:
+                return "not_found", "Employee not found"
+            if new_id and new_id != emp_id:
+                if db.get(models.Operator, new_id):
+                    return "conflict", "Employee ID already exists"
+                used = db.scalar(
+                    select(func.count()).select_from(models.SessionRow)
+                    .where(models.SessionRow.operator_id == emp_id)
+                ) or db.scalar(
+                    select(func.count()).select_from(models.Capture)
+                    .where(models.Capture.operator_id == emp_id)
+                )
+                if used:
+                    return "conflict", "Operator has test history; ID cannot be changed"
+                row.id = new_id
+            if name:
+                row.name = name
+            db.commit()
+            return "ok", "Employee updated successfully"
+
+    @staticmethod
     def remove_employee(emp_id: str) -> tuple[bool, str]:
         return _remove_person(
             models.Operator, emp_id,

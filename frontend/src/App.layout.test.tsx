@@ -97,7 +97,7 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-describe("1. station rail: setup, live inspection, reports and settings stages", () => {
+describe("1. station rail: setup, live inspection, reports and admin stages", () => {
   it("orders the four stages and keeps every session-setup field", async () => {
     renderAt("/");
     const side = sidebar();
@@ -105,10 +105,10 @@ describe("1. station rail: setup, live inspection, reports and settings stages",
     const setupStage = within(nav).getAllByText("Session setup")[0]; // stage name + ContextBar caption share the label
     const live = within(nav).getByRole("link", { name: /^Live inspection/ });
     const reports = within(nav).getByRole("link", { name: /^Reports/ });
-    const settings = within(nav).getByRole("link", { name: /^Settings/ });
+    const admin = within(nav).getByRole("link", { name: /^Admin/ });
     expect(follows(setupStage, live)).toBe(true);
     expect(follows(live, reports)).toBe(true);
-    expect(follows(reports, settings)).toBe(true);
+    expect(follows(reports, admin)).toBe(true);
     const setup = await within(side).findByRole("region", { name: "Session setup" });
     expect(within(setup).getByLabelText("Operator")).toBeInTheDocument();
     expect(within(setup).getByLabelText("First-piece inspector")).toBeInTheDocument();
@@ -164,23 +164,23 @@ describe("2. header: no Dashboard / Reports / Settings links, sidebar keeps the 
     const nav = within(sidebar()).getByRole("navigation", { name: "Main" });
     expect(within(nav).getByRole("link", { name: /^Live inspection/ })).toHaveAttribute("href", "/");
     expect(within(nav).getByRole("link", { name: /^Reports/ })).toHaveAttribute("href", "/reports");
-    expect(within(nav).getByRole("link", { name: /^Settings/ })).toHaveAttribute("href", "/settings");
+    expect(within(nav).getByRole("link", { name: /^Admin/ })).toHaveAttribute("href", "/settings");
     fireEvent.click(within(nav).getByRole("link", { name: /^Reports/ }));
     expect(await screen.findByRole("heading", { name: "Reports", level: 2 })).toBeInTheDocument();
-    fireEvent.click(within(nav).getByRole("link", { name: /^Settings/ }));
+    fireEvent.click(within(nav).getByRole("link", { name: /^Admin/ }));
     expect(
       await screen.findByRole("heading", { name: "Admin sign-in required" }),
     ).toBeInTheDocument();
   });
 });
 
-describe("5. Settings rail stage keeps the /settings destination and Admin page title", () => {
-  it("the Settings stage is current on /settings and the page heading stays Admin", async () => {
+describe("5. Admin rail stage keeps the /settings destination and Admin page title", () => {
+  it("the Admin stage is current on /settings and the page heading stays Admin", async () => {
     useSessionStore.setState({ adminToken: "tok" });
     vi.spyOn(api, "verifyAdmin").mockResolvedValue(undefined);
     renderAt("/settings");
-    const settings = within(sidebar()).getByRole("link", { name: /^Settings/ });
-    expect(settings).toHaveAttribute("aria-current", "page");
+    const admin = within(sidebar()).getByRole("link", { name: /^Admin/ });
+    expect(admin).toHaveAttribute("aria-current", "page");
     expect(await screen.findByRole("heading", { name: "Admin", level: 2 })).toBeInTheDocument();
   });
 });

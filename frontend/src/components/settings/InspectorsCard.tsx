@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus, ShieldCheck, Trash2 } from "lucide-react";
+import { Pencil, Plus, ShieldCheck, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -122,7 +122,7 @@ export function InspectorsCard() {
                         aria-label={`Edit ${i.name}`}
                         onClick={() => setEditing(i)}
                       >
-                        Edit
+                        <Pencil className="h-3.5 w-3.5" />
                       </Button>
                       <Button
                         size="sm"

@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus, Trash2, UserCog } from "lucide-react";
+import { Pencil, Plus, Trash2, UserCog } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -24,6 +24,7 @@ export function EmployeesCard() {
   const { adminToken, setAdminToken } = useSessionStore();
   const qc = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [editing, setEditing] = useState<Person | null>(null);
 
   const { data: employees = [], isLoading } = useQuery({
     queryKey: ["employees"],
@@ -45,6 +46,20 @@ export function EmployeesCard() {
       toast.success(`Added ${created.name} (${created.id})`);
       qc.invalidateQueries({ queryKey: ["employees"] });
       setDialogOpen(false);
+    },
+    onError: (err: unknown) => {
+      if (handleAdminError(err)) return;
+      toast.error(err instanceof Error ? err.message : String(err));
+    },
+  });
+
+  const updateMut = useMutation({
+    mutationFn: ({ id, values }: { id: string; values: Person }) =>
+      api.updateEmployee(id, values, adminToken ?? ""),
+    onSuccess: (updated) => {
+      toast.success(`Updated ${updated.name}`);
+      qc.invalidateQueries({ queryKey: ["employees"] });
+      setEditing(null);
     },
     onError: (err: unknown) => {
       if (handleAdminError(err)) return;
@@ -99,18 +114,29 @@ export function EmployeesCard() {
                     </span>
                   </TableCell>
                   <TableCell className="text-right">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="h-7 border-fail/40 px-2.5 text-fail hover:bg-[var(--red-fill)]"
-                      aria-label={`Delete ${e.name}`}
+                    <div className="flex justify-end gap-1">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-7 px-2.5"
+                        aria-label={`Edit ${e.name}`}
+                        onClick={() => setEditing(e)}
+                      >
+                        <Pencil className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-7 border-fail/40 px-2.5 text-fail hover:bg-[var(--red-fill)]"
+                        aria-label={`Delete ${e.name}`}
                       onClick={() => {
                         if (confirm(`Remove ${e.name} (${e.id})?`)) removeMut.mutate(e.id);
                       }}
-                      disabled={removeMut.isPending}
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </Button>
+                        disabled={removeMut.isPending}
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
@@ -129,6 +155,14 @@ export function EmployeesCard() {
         description="ID is what the camera log records; pick something stable."
         submitting={addMut.isPending}
         onSubmit={(values) => addMut.mutate(values)}
+      />
+      <PersonFormDialog
+        open={editing !== null}
+        onOpenChange={(o) => !o && setEditing(null)}
+        title="Edit operator"
+        defaultValues={editing ?? undefined}
+        submitting={updateMut.isPending}
+        onSubmit={(values) => editing && updateMut.mutate({ id: editing.id, values })}
       />
     </Card>
   );

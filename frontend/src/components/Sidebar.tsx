@@ -137,7 +137,7 @@ export function SidebarLayout({ children }: { children: React.ReactNode }) {
 
             <NavLink to="/settings" className={cn("stage", pathname === "/settings" && "active")}>
               <span className="stage-nm">
-                <span className="flex-1">Settings</span>
+                <span className="flex-1">Admin</span>
               </span>
               <div className="stage-st">Operators · Inspectors · Admin</div>
             </NavLink>
