@@ -1,4 +1,4 @@
-import { Moon, Sun, Volume2, VolumeX } from "lucide-react";
+import { LogOut, Moon, Sun, Volume2, VolumeX } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import { Toaster } from "sonner";
@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 import { useSessionStore } from "@/store/session";
 import { useSoundStore } from "@/store/sound";
 import { ErrorBoundary } from "./components/ErrorBoundary";
-import { isAuthed } from "./features/login/auth";
+import { currentUserEmail, isAuthed, signOut } from "./features/login/auth";
 import { LoginPage } from "./features/login/LoginPage";
 import { SidebarLayout } from "./components/Sidebar";
 import Dashboard from "./routes/Dashboard";
@@ -55,6 +55,12 @@ export default function App() {
           <SoundToggle />
           <SessionChip />
           <ThemeToggle />
+          <LogoutButton
+            onLogout={() => {
+              signOut();
+              setAuthed(false);
+            }}
+          />
           <HeaderAvatar />
         </div>
       </header>
@@ -165,11 +171,11 @@ function ThemeToggle() {
   );
 }
 
-/** Operator initials while a session is live, AD for a signed-in admin. */
+/** The logged-in person's initial, taken from the sign-in email (digibull@gmail.com -> D). */
 function HeaderAvatar() {
-  const operator = useSessionStore((s) => (s.session?.active ? s.session.employee_name : null));
+  const email = currentUserEmail();
   const admin = useSessionStore((s) => !!s.adminToken);
-  const name = operator ?? (admin ? "Admin" : null);
+  const name = email ?? (admin ? "Admin" : null);
   if (!name) return null;
   return (
     <span
@@ -178,8 +184,66 @@ function HeaderAvatar() {
       title={name}
       aria-hidden="true"
     >
-      {initials(name)}
+      {email ? email.charAt(0).toUpperCase() : initials(name)}
     </span>
+  );
+}
+
+/** Logout icon button with a confirm/cancel popup. */
+function LogoutButton({ onLogout }: { onLogout: () => void }) {
+  const [asking, setAsking] = useState(false);
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => setAsking(true)}
+        className="grid h-8 w-8 place-items-center rounded-md border"
+        style={{ borderColor: "var(--line)", background: "var(--soft2)", color: "var(--ink2)" }}
+        title="Log out"
+        aria-label="Log out"
+      >
+        <LogOut size={15} />
+      </button>
+      {asking && (
+        <div
+          role="presentation"
+          className="fixed inset-0 z-50 grid place-items-center"
+          style={{ background: "rgba(4, 10, 20, .55)" }}
+          onClick={() => setAsking(false)}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Confirm logout"
+            className="w-[320px] rounded-xl border p-5 shadow-2xl"
+            style={{ background: "var(--card)", borderColor: "var(--line)" }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="text-sm font-bold tx">Log out?</div>
+            <p className="mt-1.5 text-[13px] tx2">You will need to sign in again to use the console.</p>
+            <div className="mt-4 flex justify-end gap-2">
+              <button
+                type="button"
+                className="rounded-lg border px-3.5 py-1.5 text-[13px] font-semibold tx2"
+                style={{ borderColor: "var(--line-strong)", background: "var(--soft2)" }}
+                onClick={() => setAsking(false)}
+                autoFocus
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="rounded-lg px-3.5 py-1.5 text-[13px] font-bold text-white"
+                style={{ background: "linear-gradient(180deg, #ffa63a 0%, #ec6f26 100%)" }}
+                onClick={onLogout}
+              >
+                Log out
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 
