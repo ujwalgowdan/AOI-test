@@ -128,7 +128,7 @@ function ExportDailyReport() {
       className="mt-2 w-full border-innotech/30 text-innotech hover:bg-innotech/5"
     >
       <Download className="h-4 w-4" />
-      {busy ? "Generating…" : "Export daily report"}
+      {busy ? "Generating…" : "Export today's report"}
     </Button>
   );
 }

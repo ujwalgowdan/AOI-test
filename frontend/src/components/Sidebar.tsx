@@ -1,3 +1,4 @@
+import { ChevronDown } from "lucide-react";
 import { createContext, useContext, useState } from "react";
 import { createPortal } from "react-dom";
 import { NavLink, useLocation } from "react-router-dom";
@@ -36,6 +37,12 @@ export function SidebarLayout({ children }: { children: React.ReactNode }) {
   const active = !!session?.active;
   const setupDone = active || (!!employeeId && !!inspectorId);
   const onDashboard = pathname === "/";
+  // Once setup is done the Session setup card collapses to a one-line summary
+  // (green tick + chevron); the chevron re-opens it for edits. All its info
+  // then lives on the Live inspection card (rendered by the Dashboard into
+  // the wire slot).
+  const [setupOpen, setSetupOpen] = useState(false);
+  const setupCollapsed = setupDone && !setupOpen;
 
   return (
     <SlotsContext.Provider value={{ setup, wire, start }}>
@@ -51,11 +58,35 @@ export function SidebarLayout({ children }: { children: React.ReactNode }) {
           <div ref={setStart} data-slot="start" className="empty:hidden" />
           <nav aria-label="Main" className="flex flex-col gap-2.5">
             <div className={cn("stage", setupDone && "done")}>
-              <span className="stage-nm">
-                <span className="flex-1">Session setup</span>
-              </span>
+              {setupDone ? (
+                <button
+                  type="button"
+                  className="stage-nm w-full cursor-pointer"
+                  onClick={() => setSetupOpen((o) => !o)}
+                  aria-expanded={setupOpen}
+                  aria-label="Session setup"
+                >
+                  <span className="flex-1 text-left">Session setup</span>
+                  <span className="chevok" aria-hidden="true">
+                    ✓
+                  </span>
+                  <ChevronDown
+                    className="chev h-3.5 w-3.5 transition-transform"
+                    style={{ transform: setupOpen ? "rotate(180deg)" : undefined }}
+                    aria-hidden="true"
+                  />
+                </button>
+              ) : (
+                <span className="stage-nm">
+                  <span className="flex-1">Session setup</span>
+                </span>
+              )}
               <div className="stage-st">Operator + inspector picked</div>
-              <div ref={setSetup} data-slot="setup" className="mt-2 empty:hidden" />
+              <div
+                ref={setSetup}
+                data-slot="setup"
+                className={cn("mt-2 empty:hidden", setupCollapsed && "hidden")}
+              />
             </div>
 
             <NavLink
@@ -69,9 +100,14 @@ export function SidebarLayout({ children }: { children: React.ReactNode }) {
               <div className="stage-st">
                 {active
                   ? `In progress - ${(session?.ok_count ?? 0) + (session?.not_ok_count ?? 0)} captures`
-                  : "Camera · capture · verdict"}
+                  : setupDone
+                    ? "Camera · capture · verdict"
+                    : "Waiting for session setup"}
               </div>
-              {(active || (employeeId && onDashboard)) && (
+              {/* Away from the Dashboard the page slots are unmounted, so the
+                  rail itself shows the basic operator / inspector lines. On the
+                  Dashboard the full session info comes through the wire slot. */}
+              {!onDashboard && active && (
                 <div className="subs">
                   {session?.employee_name && (
                     <span className="sub-row">

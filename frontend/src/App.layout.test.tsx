@@ -216,7 +216,7 @@ describe("4. Export daily report reuses the Reports range-PDF flow for today (As
     renderAt("/");
     const history = screen.getByRole("tablist", { name: "Capture history" })
       .parentElement as HTMLElement;
-    const btn = within(history).getByRole("button", { name: "Export daily report" });
+    const btn = within(history).getByRole("button", { name: "Export today's report" });
     expect(follows(within(history).getByRole("tabpanel"), btn)).toBe(true);
     fireEvent.click(btn);
     await waitFor(() =>
@@ -237,13 +237,13 @@ describe("4. Export daily report reuses the Reports range-PDF flow for today (As
       }),
     );
     renderAt("/");
-    const btn = screen.getByRole("button", { name: "Export daily report" });
+    const btn = screen.getByRole("button", { name: "Export today's report" });
     fireEvent.click(btn);
     const busy = await screen.findByRole("button", { name: "Generating…" });
     expect(busy).toBeDisabled();
     await act(async () => reject(new HttpError(403, "Invalid admin token")));
     await waitFor(() => expect(toast.error).toHaveBeenCalledWith("Invalid admin token"));
-    expect(screen.getByRole("button", { name: "Export daily report" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "Export today's report" })).toBeEnabled();
   });
 
   it("Reports page 'Download range PDF' still uses the same flow (today preset, token)", async () => {

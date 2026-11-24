@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus, UserCog } from "lucide-react";
+import { Plus, Trash2, UserCog } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -109,7 +109,7 @@ export function EmployeesCard() {
                       }}
                       disabled={removeMut.isPending}
                     >
-                      Del
+                      <Trash2 className="h-3.5 w-3.5" />
                     </Button>
                   </TableCell>
                 </TableRow>

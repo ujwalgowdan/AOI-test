@@ -17,6 +17,8 @@
   --blue: #006c99;
   --blue-rgb: 0 108 153;
   --blue-dark-rgb: 0 90 128;
+  --active-fill: #006c99;
+  --active-line: #005a81;
   --blue-ink: #ffffff;
   --blue-soft: rgba(0, 108, 153, 0.08);
   --orange: #ff9800;
@@ -45,6 +47,8 @@
   --blue: #5b83f2;
   --blue-rgb: 91 131 242;
   --blue-dark-rgb: 74 111 209;
+  --active-fill: #23447f;
+  --active-line: #2e529b;
   --blue-ink: #ffffff;
   --blue-soft: rgba(91, 131, 242, 0.16);
   --orange: #ff9800;
@@ -107,35 +111,33 @@ body {
   font-size: 13.5px;
   color: var(--ink);
 }
-.stage .stage-nm::before {
-  content: "";
-  width: 18px;
-  height: 18px;
-  border-radius: 6px;
-  border: 1.5px solid var(--line-strong);
-  background: var(--card);
-  flex: none;
-}
 .stage .stage-st {
   font-size: 11px;
   color: var(--faint);
   margin-top: 2px;
 }
-.stage.done .stage-nm::before {
-  background: var(--green-fill);
-  border-color: rgb(var(--pass-rgb));
+.stage .stage-nm .chevok {
+  color: rgb(var(--pass-rgb));
+  font-weight: 800;
+  font-size: 12px;
+}
+.stage .stage-nm .chev {
+  color: var(--faint);
+  margin-left: auto;
 }
 .stage.active {
-  background: var(--orange-fill);
-  border-color: var(--orange-line);
+  background: var(--active-fill);
+  border-color: var(--active-line);
+}
+.stage.active .stage-nm {
+  color: #ffffff;
 }
 .stage.active .stage-st {
-  color: var(--orange-ink-soft);
+  color: rgba(255, 255, 255, 0.78);
   font-weight: 600;
 }
-.stage.active .stage-nm::before {
-  background: var(--orange);
-  border-color: var(--orange);
+.stage.active .stage-nm .chev {
+  color: rgba(255, 255, 255, 0.78);
 }
 a.stage:hover {
   border-color: var(--line-strong);
@@ -167,6 +169,15 @@ a.stage:hover {
   font-weight: 800;
   font-size: 11px;
   margin-left: auto;
+}
+.stage.active .sub-row {
+  color: rgba(255, 255, 255, 0.92);
+}
+.stage.active .sub-row .sd {
+  background: rgba(255, 255, 255, 0.55);
+}
+.stage.active .sub-row .tk {
+  color: #7ce7a8;
 }
 
 /* Pane shell used by the Dashboard / Reports / Admin pages. */

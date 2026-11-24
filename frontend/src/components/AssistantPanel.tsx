@@ -1,5 +1,6 @@
-import { ChevronDown, Loader2, Send } from "lucide-react";
+import { ChevronDown, Loader2, Mic, Plus, Send } from "lucide-react";
 import { type FormEvent, useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 
 import { api } from "@/api/client";
 import {
@@ -22,7 +23,10 @@ export function AssistantPanel() {
   const [collapsed, setCollapsed] = useState(false);
   const [draft, setDraft] = useState("");
   const [busy, setBusy] = useState(false);
+  const [listening, setListening] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const recogRef = useRef<{ stop: () => void } | null>(null);
   const endRef = useRef<HTMLDivElement>(null);
   const nextId = useRef(0);
   const sessionId = useSessionStore((s) => (s.session?.active ? s.session.id : null));
@@ -54,6 +58,70 @@ export function AssistantPanel() {
   const submit = (e: FormEvent) => {
     e.preventDefault();
     void ask(draft);
+  };
+
+  // + button: attach text documents; their content joins the draft so the
+  // question can refer to them (the chat endpoint is text-only).
+  const onFiles = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files ?? []);
+    e.target.value = "";
+    for (const f of files) {
+      if (f.size > 51200) {
+        toast.error(`${f.name} is too large to attach (50 KB max)`);
+        continue;
+      }
+      const text = (await f.text()).trim();
+      if (!text) continue;
+      setDraft((d) => `${d ? `${d.trimEnd()}\n\n` : ""}[${f.name}]\n${text}`.slice(0, 4000));
+    }
+    inputRef.current?.focus();
+  };
+
+  // Mic button: dictate into the draft through the browser speech recognizer
+  // (shown only where the API exists).
+  interface Recog {
+    lang: string;
+    continuous: boolean;
+    interimResults: boolean;
+    onresult: (e: { results: ArrayLike<ArrayLike<{ transcript: string }>> }) => void;
+    onend: () => void;
+    onerror: () => void;
+    start: () => void;
+    stop: () => void;
+  }
+  const SpeechRec =
+    typeof window !== "undefined"
+      ? (((window as unknown as Record<string, unknown>).SpeechRecognition ??
+        (window as unknown as Record<string, unknown>).webkitSpeechRecognition) as
+          | (new () => Recog)
+          | undefined)
+      : undefined;
+  const toggleDictation = () => {
+    if (!SpeechRec) return;
+    if (recogRef.current) {
+      recogRef.current.stop();
+      return;
+    }
+    const rec = new SpeechRec();
+    rec.lang = "en-IN";
+    rec.continuous = false;
+    rec.interimResults = false;
+    rec.onresult = (e) => {
+      const said = Array.from({ length: e.results.length }, (_, i) => e.results[i]?.[0]?.transcript)
+        .filter(Boolean)
+        .join(" ");
+      if (said) setDraft((d) => (d ? `${d.trimEnd()} ${said}` : said));
+    };
+    const done = () => {
+      recogRef.current = null;
+      setListening(false);
+      inputRef.current?.focus();
+    };
+    rec.onend = done;
+    rec.onerror = done;
+    recogRef.current = rec;
+    setListening(true);
+    rec.start();
   };
 
   return (
@@ -149,6 +217,26 @@ export function AssistantPanel() {
             style={{ borderColor: "var(--line)", background: "var(--soft2)" }}
           >
             <input
+              ref={fileRef}
+              type="file"
+              multiple
+              accept=".txt,.md,.csv,.json,.log,text/plain,text/markdown,text/csv,application/json"
+              className="hidden"
+              aria-label="Document files"
+              onChange={(e) => void onFiles(e)}
+            />
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => fileRef.current?.click()}
+              disabled={busy}
+              aria-label="Add documents"
+              title="Add documents"
+              className="h-7 w-7 shrink-0 rounded-full p-0 txf"
+            >
+              <Plus className="h-4 w-4" />
+            </Button>
+            <input
               ref={inputRef}
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
@@ -158,6 +246,21 @@ export function AssistantPanel() {
               className="h-8 min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-[var(--faint)]"
               style={{ color: "var(--ink)" }}
             />
+            {SpeechRec && (
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={toggleDictation}
+                disabled={busy}
+                aria-label={listening ? "Stop dictation" : "Dictate"}
+                aria-pressed={listening}
+                title={listening ? "Stop dictation" : "Dictate"}
+                className="h-7 w-7 shrink-0 rounded-full p-0"
+                style={listening ? { color: "var(--blue)" } : undefined}
+              >
+                <Mic className="h-4 w-4" />
+              </Button>
+            )}
             <Button
               type="submit"
               disabled={busy || !draft.trim()}
@@ -190,8 +293,9 @@ function StartersRow({ onPick, disabled }: { onPick: (q: string) => void; disabl
           type="button"
           onClick={() => onPick(q)}
           disabled={disabled}
-          className="rounded-full border px-3 py-1 text-[11.5px] font-semibold transition hover:bg-[var(--blue-soft)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-innotech disabled:opacity-50"
+          className="truncate rounded-full border px-3 py-1 text-center text-[11.5px] font-semibold transition hover:bg-[var(--blue-soft)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-innotech disabled:opacity-50"
           style={{
+            flex: "1 1 30%",
             borderColor: "var(--line)",
             background: "var(--blue-soft)",
             color: "var(--blue)",

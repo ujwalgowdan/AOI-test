@@ -30,6 +30,8 @@ export default function Dashboard() {
     setSelectedEmployeeId,
     selectedInspectorId,
     setSelectedInspectorId,
+    selectedUnit,
+    setSelectedUnit,
   } = useSessionStore();
   const addCapture = useCapturesStore((s) => s.add);
   const lastExpected = useCapturesStore((s) => s.records[0]?.expected);
@@ -140,6 +142,22 @@ export default function Dashboard() {
     month: "short",
     year: "numeric",
   });
+  const todayLong = new Date().toLocaleDateString(undefined, {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+
+  const setupDone = active || (!!selectedEmployeeId && !!selectedInspectorId);
+  const operatorName =
+    session?.employee_name ?? employees.data?.find((e) => e.id === selectedEmployeeId)?.name;
+  const inspectorName =
+    session?.inspector_name ?? inspectors.data?.find((i) => i.id === selectedInspectorId)?.name;
+  const cameraLabel =
+    camera.devices
+      .map((d, i) => ({ id: d.deviceId, label: d.label || `Camera ${i + 1}` }))
+      .find((c) => c.id === camera.deviceId)?.label ?? "Default camera";
 
   const hint = error ? (
     <span className="font-medium text-fail" role="alert">
@@ -174,11 +192,45 @@ export default function Dashboard() {
           inspectorId={selectedInspectorId}
           onEmployee={setSelectedEmployeeId}
           onInspector={setSelectedInspectorId}
+          unit={selectedUnit}
+          onUnit={setSelectedUnit}
           locked={active}
           camera={camera}
         />
       </SidebarSlot>
       <SidebarSlot name="wire">
+        {/* After setup is done the collapsed setup card's info lives here, on
+            the Live inspection card, above the wire reference. */}
+        {setupDone && (
+          <div className="subs mb-2">
+            {operatorName && (
+              <span className="sub-row">
+                <span className="sd" />
+                Operator: {operatorName}
+                <span className="tk">✓</span>
+              </span>
+            )}
+            {inspectorName && (
+              <span className="sub-row">
+                <span className="sd" />
+                Inspector: {inspectorName}
+                <span className="tk">✓</span>
+              </span>
+            )}
+            <span className="sub-row">
+              <span className="sd" />
+              {STATION.shift} · {STATION.line} · {todayLong}
+            </span>
+            <span className="sub-row">
+              <span className="sd" />
+              Camera: {cameraLabel}
+            </span>
+            <span className="sub-row">
+              <span className="sd" />
+              Unit {selectedUnit}
+            </span>
+          </div>
+        )}
         <WireReference expected={readiness.status === "idle" ? lastExpected : readiness.expected} />
       </SidebarSlot>
 
@@ -197,7 +249,7 @@ export default function Dashboard() {
               <Button
                 onClick={capture}
                 disabled={!active || busy || readiness.status !== "ready"}
-                className="h-9 min-w-36 bg-bull px-5 font-extrabold tracking-wide text-white hover:bg-bull/90"
+                className="h-9 min-w-36 bg-innotech px-5 font-extrabold tracking-wide text-white hover:bg-innotech-dark"
                 aria-keyshortcuts="Space"
               >
                 <Camera className="h-4 w-4" />

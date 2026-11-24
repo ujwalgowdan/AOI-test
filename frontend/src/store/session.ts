@@ -15,6 +15,11 @@ interface SessionStore {
   setSelectedEmployeeId: (id: string) => void;
   setSelectedInspectorId: (id: string) => void;
 
+  /** Unit under test ("1" or "2"), picked in Session setup and shown on the
+   *  Live inspection card and the Admin Station card. */
+  selectedUnit: string;
+  setSelectedUnit: (unit: string) => void;
+
   adminToken: string | null;
   setAdminToken: (token: string | null) => void;
 }
@@ -52,6 +57,9 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
   selectedInspectorId: "",
   setSelectedEmployeeId: (id) => set({ selectedEmployeeId: id }),
   setSelectedInspectorId: (id) => set({ selectedInspectorId: id }),
+
+  selectedUnit: "1",
+  setSelectedUnit: (unit) => set({ selectedUnit: unit }),
 
   adminToken: readAdminToken(),
   setAdminToken: (token) => {

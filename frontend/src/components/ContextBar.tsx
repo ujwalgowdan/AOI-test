@@ -1,4 +1,4 @@
-import { ChevronDown, ShieldCheck, User, Video } from "lucide-react";
+import { ChevronDown, Monitor, ShieldCheck, User, Video } from "lucide-react";
 
 import type { UseCameraResult } from "@/hooks/useCamera";
 import { STATION } from "@/lib/console";
@@ -88,6 +88,8 @@ interface Props {
   inspectorId: string;
   onEmployee: (id: string) => void;
   onInspector: (id: string) => void;
+  unit: string;
+  onUnit: (unit: string) => void;
   locked: boolean;
   camera: UseCameraResult;
 }
@@ -99,6 +101,8 @@ export function ContextBar({
   inspectorId,
   onEmployee,
   onInspector,
+  unit,
+  onUnit,
   locked,
   camera,
 }: Props) {
@@ -121,6 +125,22 @@ export function ContextBar({
       <h2 className="px-1 text-[11px] font-semibold uppercase tracking-wide text-[var(--faint)]">
         Session setup
       </h2>
+      <Field caption="Unit">
+        <ChipSelect
+          label="Unit"
+          icon={<Monitor className="h-3.5 w-3.5" />}
+          value={unit}
+          onChange={onUnit}
+          options={[
+            { id: "1", label: "Unit 1" },
+            { id: "2", label: "Unit 2" },
+          ]}
+          placeholder="Select unit"
+          disabled={locked}
+        >
+          <span className="font-semibold">Unit {unit}</span>
+        </ChipSelect>
+      </Field>
       <Field caption="Operator">
         <ChipSelect
           label="Operator"

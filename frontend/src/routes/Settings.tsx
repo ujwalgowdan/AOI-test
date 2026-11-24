@@ -39,6 +39,7 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
 }
 
 function StationCard() {
+  const unit = useSessionStore((s) => s.selectedUnit);
   const today = new Date().toLocaleDateString(undefined, {
     weekday: "short",
     day: "numeric",
@@ -49,6 +50,7 @@ function StationCard() {
     <Card className="rounded-xl p-4">
       <h3 className="text-sm font-semibold text-[var(--ink)]">Station</h3>
       <dl className="mt-1 divide-y divide-[var(--line)]">
+        <Row label="Unit">{unit}</Row>
         <Row label="Line / station">
           {STATION.line} · {STATION.name}
         </Row>
