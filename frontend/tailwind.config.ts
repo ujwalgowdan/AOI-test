@@ -6,12 +6,13 @@ export default {
     extend: {
       colors: {
         innotech: {
-          DEFAULT: "#0d4d8c",
-          dark: "#0a3a6a",
-          accent: "#10b981",
+          DEFAULT: "rgb(var(--blue-rgb) / <alpha-value>)",
+          dark: "rgb(var(--blue-dark-rgb) / <alpha-value>)",
+          accent: "rgb(var(--pass-rgb) / <alpha-value>)",
         },
-        pass: "#10b981",
-        fail: "#ef4444",
+        pass: "rgb(var(--pass-rgb) / <alpha-value>)",
+        fail: "rgb(var(--fail-rgb) / <alpha-value>)",
+        bull: "#ff9800",
         neutral: "#475569",
       },
       fontFamily: {

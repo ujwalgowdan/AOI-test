@@ -21,7 +21,7 @@ export function LastResultCard() {
     <Card className="rounded-xl p-4">
       <Eyebrow>Last capture</Eyebrow>
       {!result ? (
-        <div className="py-6 text-center text-xs text-slate-500">
+        <div className="py-6 text-center text-xs text-[var(--faint)]">
           No capture yet.
           <br />
           Start a session and capture the first piece.
@@ -35,7 +35,7 @@ export function LastResultCard() {
                 ? "border-pass"
                 : result === "NOT OK"
                   ? "border-fail"
-                  : "border-slate-300",
+                  : "border-[var(--line-strong)]",
             )}
           >
             {url ? (
@@ -43,7 +43,7 @@ export function LastResultCard() {
                 <img src={url} alt="Last capture" className="h-full w-full object-cover" />
               </a>
             ) : (
-              <ImageOff className="m-auto mt-8 h-6 w-6 text-slate-500" />
+              <ImageOff className="m-auto mt-8 h-6 w-6 text-[var(--faint)]" />
             )}
             {rec && (
               <span
@@ -62,7 +62,7 @@ export function LastResultCard() {
                 "flex items-center gap-1.5 text-2xl font-extrabold leading-tight",
                 result === "OK" && "text-pass",
                 result === "NOT OK" && "text-fail",
-                result !== "OK" && result !== "NOT OK" && "text-slate-600",
+                result !== "OK" && result !== "NOT OK" && "text-[var(--ink2)]",
               )}
             >
               {result === "OK" ? (
@@ -74,16 +74,16 @@ export function LastResultCard() {
             </div>
             {rec && (
               <>
-                <p className="mt-1 text-xs font-medium text-slate-700">
+                <p className="mt-1 text-xs font-medium text-[var(--ink2)]">
                   {captureReason(rec.result, rec.detected, rec.expected)}
                 </p>
-                <p className="mt-1 text-[11px] text-slate-500">
+                <p className="mt-1 text-[11px] text-[var(--faint)]">
                   {clockTime(new Date(rec.at))} · {rec.operator} · {rec.inspector}
                 </p>
               </>
             )}
             {!rec && session && (
-              <p className="mt-1 text-[11px] text-slate-500">
+              <p className="mt-1 text-[11px] text-[var(--faint)]">
                 {session.employee_name} · {session.inspector_name}
               </p>
             )}

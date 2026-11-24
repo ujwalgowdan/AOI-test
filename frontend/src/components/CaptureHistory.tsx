@@ -31,12 +31,12 @@ export function CaptureHistory() {
     {
       id: "OK",
       label: `OK · ${ok}`,
-      tone: "data-[on=true]:bg-pass/15 data-[on=true]:text-emerald-700",
+      tone: "data-[on=true]:bg-pass/15 data-[on=true]:text-pass",
     },
     {
       id: "NOT OK",
       label: `NOT OK · ${notOk}`,
-      tone: "data-[on=true]:bg-fail/15 data-[on=true]:text-red-700",
+      tone: "data-[on=true]:bg-fail/15 data-[on=true]:text-fail",
     },
     {
       id: "PASS RATE",
@@ -57,7 +57,7 @@ export function CaptureHistory() {
             data-on={tab === t.id}
             onClick={() => setTab(t.id)}
             className={cn(
-              "truncate rounded-md bg-slate-100 px-1 py-1.5 text-[11px] font-bold tabular-nums text-slate-500 transition hover:bg-slate-200",
+              "truncate rounded-md bg-[var(--soft)] px-1 py-1.5 text-[11px] font-bold tabular-nums text-[var(--faint)] transition hover:bg-[var(--soft)]",
               t.tone,
             )}
           >
@@ -68,7 +68,7 @@ export function CaptureHistory() {
 
       <div role="tabpanel" className="mt-2">
         {rows.length === 0 ? (
-          <p className="px-2 py-6 text-center text-xs text-slate-500">
+          <p className="px-2 py-6 text-center text-xs text-[var(--faint)]">
             {!session
               ? "Capture history appears here once the session starts."
               : tab === "PASS RATE"
@@ -76,7 +76,7 @@ export function CaptureHistory() {
                 : `No ${tab} captures yet in this session.`}
           </p>
         ) : (
-          <ul className="divide-y divide-slate-100">
+          <ul className="divide-y divide-[var(--line)]">
             {rows.map((r) => {
               const why = shortReason(r.result, r.detected, r.expected);
               return (
@@ -92,10 +92,10 @@ export function CaptureHistory() {
                         className="h-full w-full object-cover"
                       />
                     ) : (
-                      <ImageOff className="m-auto mt-2 h-4 w-4 text-slate-500" />
+                      <ImageOff className="m-auto mt-2 h-4 w-4 text-[var(--faint)]" />
                     )}
                   </div>
-                  <span className="min-w-0 flex-1 truncate text-xs text-slate-700">
+                  <span className="min-w-0 flex-1 truncate text-xs text-[var(--ink2)]">
                     <b className="tabular-nums">#{r.seq}</b> · {clockTime(new Date(r.at))}
                     {why && ` · ${why}`}
                   </span>

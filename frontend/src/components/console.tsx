@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 export function Eyebrow({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={cn("text-[11px] font-semibold uppercase tracking-wider text-slate-500", className)}
+      className={cn("text-[11px] font-semibold uppercase tracking-wider text-[var(--faint)]", className)}
       {...props}
     />
   );
@@ -32,7 +32,7 @@ export function PassRateDonut({
           r="15.9155"
           fill="none"
           strokeWidth="3.5"
-          className={rate === null ? "stroke-slate-200" : "stroke-fail"}
+          className={rate === null ? "stroke-[var(--line)]" : "stroke-fail"}
         />
         {rate !== null && (
           <circle
@@ -52,12 +52,12 @@ export function PassRateDonut({
             className={cn(
               "font-bold tabular-nums",
               size >= 72 ? "text-base" : "text-sm",
-              rate === null ? "text-slate-400" : "text-pass",
+              rate === null ? "text-[var(--faint)]" : "text-pass",
             )}
           >
             {rate === null ? "–%" : `${rate}%`}
           </div>
-          <div className="mt-0.5 text-[8px] font-semibold uppercase tracking-wide text-slate-400">
+          <div className="mt-0.5 text-[8px] font-semibold uppercase tracking-wide text-[var(--faint)]">
             Pass rate
           </div>
         </div>
@@ -72,9 +72,9 @@ export function ResultPill({ result, className }: { result: string; className?: 
     <span
       className={cn(
         "inline-flex shrink-0 items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide",
-        result === "OK" && "bg-pass/15 text-emerald-700",
-        result === "NOT OK" && "bg-fail/15 text-red-700",
-        result !== "OK" && result !== "NOT OK" && "bg-slate-200 text-slate-600",
+        result === "OK" && "bg-pass/15 text-pass",
+        result === "NOT OK" && "bg-fail/15 text-fail",
+        result !== "OK" && result !== "NOT OK" && "bg-[var(--surface3)] text-[var(--ink2)]",
         className,
       )}
     >
@@ -88,7 +88,7 @@ export function Avatar({ name, tone = "blue" }: { name: string; tone?: "blue" | 
     <span
       className={cn(
         "grid h-7 w-7 shrink-0 place-items-center rounded-md text-[10px] font-bold",
-        tone === "blue" ? "bg-innotech/10 text-innotech" : "bg-amber-100 text-amber-700",
+        tone === "blue" ? "bg-innotech/10 text-innotech" : "bg-[var(--orange-fill)] text-[var(--orange-ink-soft)]",
       )}
       aria-hidden="true"
     >

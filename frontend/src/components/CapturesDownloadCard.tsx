@@ -79,14 +79,14 @@ export function CapturesDownloadCard({ start, end, onStart: setStart, onEnd: set
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
-        <p className="text-sm text-slate-600">
+        <p className="text-sm text-[var(--ink2)]">
           Bundle a date range of captured JPEGs (plus a <code>manifest.csv</code>) into a single
           ZIP. The manifest lists the timestamp, operator, inspector, result, and detected colour
           order for every capture in the range.
         </p>
         <div className="grid gap-3 sm:grid-cols-3">
           <label className="block">
-            <span className="mb-1 block text-xs uppercase tracking-wide text-slate-500">
+            <span className="mb-1 block text-xs uppercase tracking-wide text-[var(--faint)]">
               Start date
             </span>
             <Input
@@ -98,7 +98,7 @@ export function CapturesDownloadCard({ start, end, onStart: setStart, onEnd: set
             />
           </label>
           <label className="block">
-            <span className="mb-1 block text-xs uppercase tracking-wide text-slate-500">
+            <span className="mb-1 block text-xs uppercase tracking-wide text-[var(--faint)]">
               End date
             </span>
             <Input
@@ -111,7 +111,7 @@ export function CapturesDownloadCard({ start, end, onStart: setStart, onEnd: set
             />
           </label>
           <label className="block">
-            <span className="mb-1 block text-xs uppercase tracking-wide text-slate-500">
+            <span className="mb-1 block text-xs uppercase tracking-wide text-[var(--faint)]">
               Result
             </span>
             <NativeSelect
@@ -128,7 +128,7 @@ export function CapturesDownloadCard({ start, end, onStart: setStart, onEnd: set
         </div>
         <div className="flex flex-wrap items-center justify-end gap-3">
           {!adminToken && (
-            <p className="mr-auto text-xs text-slate-500">
+            <p className="mr-auto text-xs text-[var(--faint)]">
               Sign in on the Admin page to enable downloads.
             </p>
           )}

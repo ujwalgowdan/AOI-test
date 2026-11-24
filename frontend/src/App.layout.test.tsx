@@ -27,7 +27,7 @@ vi.mock("@/hooks/useCamera", () => {
     zoomIn: () => {},
     zoomOut: () => {},
   };
-  return { ZOOM_MIN: 1, ZOOM_MAX: 5, useCamera: () => camera };
+  return { ZOOM_MIN: 1, ZOOM_MAX: 3, ZOOM_LEVELS: [1, 3], useCamera: () => camera };
 });
 
 vi.mock("sonner", async (orig) => {
@@ -97,18 +97,22 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-describe("1. sidebar: Session setup above Navigate, Wire reference at the bottom", () => {
-  it("orders the three sections and keeps every session-setup field", async () => {
+describe("1. station rail: setup, live inspection, reports and settings stages", () => {
+  it("orders the four stages and keeps every session-setup field", async () => {
     renderAt("/");
     const side = sidebar();
-    const setup = await within(side).findByRole("region", { name: "Session setup" });
     const nav = within(side).getByRole("navigation", { name: "Main" });
-    const wire = within(side).getByRole("region", { name: "Wire reference" });
-    expect(follows(setup, nav)).toBe(true);
-    expect(follows(nav, wire)).toBe(true);
+    const setupStage = within(nav).getByText("Setup session");
+    const live = within(nav).getByRole("link", { name: /^Live inspection/ });
+    const reports = within(nav).getByRole("link", { name: /^Reports/ });
+    const settings = within(nav).getByRole("link", { name: /^Settings/ });
+    expect(follows(setupStage, live)).toBe(true);
+    expect(follows(live, reports)).toBe(true);
+    expect(follows(reports, settings)).toBe(true);
+    const setup = await within(side).findByRole("region", { name: "Session setup" });
     expect(within(setup).getByLabelText("Operator")).toBeInTheDocument();
     expect(within(setup).getByLabelText("First-piece inspector")).toBeInTheDocument();
-    expect(within(setup).getByText(/Shift A · Line 1/)).toBeInTheDocument();
+    expect(within(side).getByText(/Station - AOI Tester MKII/)).toBeInTheDocument();
   });
 
   it("session-setup selects keep their behaviour (options, selection, lock while live)", async () => {
@@ -155,47 +159,52 @@ describe("2. header: no Dashboard / Reports / Settings links, sidebar keeps the 
     expect(within(header).getByRole("button", { name: "Verdict sound" })).toBeInTheDocument();
   });
 
-  it("sidebar links reach the same routes", async () => {
+  it("rail links reach the same routes", async () => {
     renderAt("/");
     const nav = within(sidebar()).getByRole("navigation", { name: "Main" });
-    expect(within(nav).getByRole("link", { name: "Dashboard" })).toHaveAttribute("href", "/");
-    expect(within(nav).getByRole("link", { name: "Reports" })).toHaveAttribute("href", "/reports");
-    expect(within(nav).getByRole("link", { name: "Admin" })).toHaveAttribute("href", "/settings");
-    fireEvent.click(within(nav).getByRole("link", { name: "Reports" }));
+    expect(within(nav).getByRole("link", { name: /^Live inspection/ })).toHaveAttribute("href", "/");
+    expect(within(nav).getByRole("link", { name: /^Reports/ })).toHaveAttribute("href", "/reports");
+    expect(within(nav).getByRole("link", { name: /^Settings/ })).toHaveAttribute("href", "/settings");
+    fireEvent.click(within(nav).getByRole("link", { name: /^Reports/ }));
     expect(await screen.findByRole("heading", { name: "Reports", level: 2 })).toBeInTheDocument();
-    fireEvent.click(within(nav).getByRole("link", { name: "Admin" }));
+    fireEvent.click(within(nav).getByRole("link", { name: /^Settings/ }));
     expect(
       await screen.findByRole("heading", { name: "Admin sign-in required" }),
     ).toBeInTheDocument();
   });
 });
 
-describe("5. Settings label renamed to Admin", () => {
-  it("no Settings link anywhere; Admin keeps the /settings destination, icon and page title", async () => {
+describe("5. Settings rail stage keeps the /settings destination and Admin page title", () => {
+  it("the Settings stage is current on /settings and the page heading stays Admin", async () => {
     useSessionStore.setState({ adminToken: "tok" });
     vi.spyOn(api, "verifyAdmin").mockResolvedValue(undefined);
     renderAt("/settings");
-    expect(screen.queryByRole("link", { name: /settings/i })).toBeNull();
-    const admin = within(sidebar()).getByRole("link", { name: "Admin" });
-    expect(admin.querySelector("svg")).not.toBeNull();
-    expect(admin).toHaveAttribute("aria-current", "page");
+    const settings = within(sidebar()).getByRole("link", { name: /^Settings/ });
+    expect(settings).toHaveAttribute("aria-current", "page");
     expect(await screen.findByRole("heading", { name: "Admin", level: 2 })).toBeInTheDocument();
   });
 });
 
-describe("3. chatbot launcher (enabled in chat step 5: opens the assistant sheet)", () => {
-  it("sits after the capture controls and opens the Assistant sheet", async () => {
+describe("3. BuLLM Assistant panel (inline under the camera, collapsible)", () => {
+  it("renders inline below the camera with the ask bar pinned at its bottom", async () => {
     vi.spyOn(api, "chat").mockResolvedValue({} as never);
     renderAt("/");
     const camera = screen.getByRole("region", { name: "Inspection camera" });
-    const bot = within(camera).getByRole("button", { name: "Open chatbot" });
-    expect(bot).not.toHaveAttribute("aria-disabled");
-    // Placed after the capture controls, not over the feed.
-    const capture = within(camera).getByRole("button", { name: /CAPTURE/ });
-    expect(follows(capture, bot)).toBe(true);
-    fireEvent.click(bot);
-    expect(await screen.findByRole("dialog", { name: "Assistant" })).toBeInTheDocument();
-    expect(api.chat).not.toHaveBeenCalled(); // opening asks nothing by itself
+    const assistant = screen.getByRole("region", { name: "BuLLM Assistant" });
+    // Below the camera in the same middle pane, not over the feed.
+    expect(follows(camera, assistant)).toBe(true);
+    expect(within(assistant).getByLabelText("Question")).toBeInTheDocument();
+    expect(within(assistant).getByRole("button", { name: "Send" })).toBeInTheDocument();
+    expect(api.chat).not.toHaveBeenCalled(); // rendering asks nothing by itself
+  });
+
+  it("collapses to its header and expands again", async () => {
+    renderAt("/");
+    const assistant = screen.getByRole("region", { name: "BuLLM Assistant" });
+    fireEvent.click(within(assistant).getByRole("button", { name: "Collapse assistant" }));
+    expect(within(assistant).queryByLabelText("Question")).toBeNull();
+    fireEvent.click(within(assistant).getByRole("button", { name: "Expand assistant" }));
+    expect(within(assistant).getByLabelText("Question")).toBeInTheDocument();
   });
 });
 

@@ -10,9 +10,9 @@ export function WireReference({ expected }: { expected: string[] | undefined }) 
   return (
     <section
       aria-label="Wire reference"
-      className="rounded-lg border border-slate-200 bg-white px-3 py-2"
+      className="rounded-lg border border-[var(--line)] bg-[var(--card)] px-3 py-2"
     >
-      <h2 className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+      <h2 className="text-[11px] font-semibold uppercase tracking-wide text-[var(--faint)]">
         Wire reference
       </h2>
       {expected?.length ? (
@@ -22,17 +22,17 @@ export function WireReference({ expected }: { expected: string[] | undefined }) 
               <span
                 aria-hidden="true"
                 className={cn(
-                  "h-2.5 w-6 rounded-full ring-1 ring-slate-300",
-                  WIRE_FILL[color] ?? "bg-slate-500",
+                  "h-2.5 w-6 rounded-full ring-1 ring-[var(--line-strong)]",
+                  WIRE_FILL[color] ?? "bg-[var(--faint)]",
                 )}
               />
-              <span className="font-semibold capitalize text-slate-800">{color}</span>
-              <span className="text-slate-500">{positions[i]}</span>
+              <span className="font-semibold capitalize text-[var(--ink)]">{color}</span>
+              <span className="text-[var(--faint)]">{positions[i]}</span>
             </li>
           ))}
         </ul>
       ) : (
-        <p className="mt-1 text-[11px] text-slate-500">
+        <p className="mt-1 text-[11px] text-[var(--faint)]">
           Shown after the first camera check of a session.
         </p>
       )}

@@ -3,9 +3,9 @@ import { Camera, Play, Square } from "lucide-react";
 import { useCallback, useRef, useState } from "react";
 
 import { api } from "@/api/client";
+import { AssistantPanel } from "@/components/AssistantPanel";
 import { CameraView } from "@/components/CameraView";
 import { CaptureHistory } from "@/components/CaptureHistory";
-import { ChatbotLauncher } from "@/components/ChatbotLauncher";
 import { ContextBar } from "@/components/ContextBar";
 import { DailySummary } from "@/components/DailySummary";
 import { LastResultCard } from "@/components/LastResultCard";
@@ -16,6 +16,7 @@ import { useCamera } from "@/hooks/useCamera";
 import { useHotkey } from "@/hooks/useHotkey";
 import { useReadinessProbe } from "@/hooks/useReadinessProbe";
 import { useSessionSocket } from "@/hooks/useSessionSocket";
+import { STATION } from "@/lib/console";
 import { useCapturesStore } from "@/store/captures";
 import { useSessionStore } from "@/store/session";
 
@@ -128,28 +129,43 @@ export default function Dashboard() {
   }, [session, camera, applyLive, addCapture, busy]);
 
   useHotkey("Space", capture, !!session?.active);
-  // Legacy detector keyboard parity: + / - zoom the camera 1×–5×.
+  // Legacy detector keyboard parity: + / - zoom the camera between 1× and 3×.
   // Always enabled (no need for an active session to zoom).
   useHotkey("+", camera.zoomIn);
   useHotkey("=", camera.zoomIn); // '+' on most keyboards is Shift+'=' — accept the unshifted key too.
   useHotkey("-", camera.zoomOut);
 
+  const today = new Date().toLocaleDateString(undefined, {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+
   const hint = error ? (
-    <span className="font-medium text-rose-600" role="alert">
+    <span className="font-medium text-fail" role="alert">
       {error}
     </span>
   ) : active && readiness.status === "not_detected" ? (
-    <span className="font-medium text-rose-600">
-      Align both wires (green, yellow) to enable capture.
-    </span>
+    <span className="font-medium text-fail">Align both wires (green, yellow) to enable capture.</span>
   ) : active ? (
-    "Capture unlocks automatically once both wires sit inside the guide frame."
+    "Verdict and wire order are checked on capture"
   ) : (
     "Capture unlocks after a session starts and both wires sit inside the guide frame."
   );
 
   return (
     <div className="flex min-h-full flex-col lg:h-full">
+      <SidebarSlot name="start">
+        {!active && (
+          <Button
+            onClick={start}
+            disabled={busy}
+            className="h-[38px] w-full text-sm font-bold"
+          >
+            <Play className="h-4 w-4 fill-current" /> Start session
+          </Button>
+        )}
+      </SidebarSlot>
       <SidebarSlot name="setup">
         <ContextBar
           employees={employees.data ?? []}
@@ -166,45 +182,61 @@ export default function Dashboard() {
         <WireReference expected={readiness.status === "idle" ? lastExpected : readiness.expected} />
       </SidebarSlot>
 
-      <div className="grid flex-1 gap-4 p-4 lg:min-h-0 lg:grid-cols-[minmax(0,1fr)_400px]">
-        <CameraView camera={camera} readiness={readiness} footer={<ChatbotLauncher />}>
-          {!active && (
-            <Button onClick={start} disabled={busy} variant="success" className="h-10 px-5">
-              <Play className="h-4 w-4 fill-current" /> Start session
-            </Button>
-          )}
-          <Button
-            onClick={capture}
-            disabled={!active || busy || readiness.status !== "ready"}
-            className="h-10 min-w-36 px-5 font-bold tracking-wide"
-            aria-keyshortcuts="Space"
-          >
-            <Camera className="h-4 w-4" />
-            {busy && active ? "ANALYZING…" : "CAPTURE"}
-            {active && (
-              <kbd className="ml-1 rounded bg-white/20 px-1.5 py-0.5 text-[10px] font-semibold">
-                SPACE
-              </kbd>
-            )}
-          </Button>
-          <p className="min-w-0 flex-1 text-xs text-slate-500">{hint}</p>
-          {active && (
-            <Button
-              onClick={stop}
-              disabled={busy}
-              variant="outline"
-              className="h-10 border-fail/40 text-fail hover:bg-red-50"
-            >
-              <Square className="h-3.5 w-3.5 fill-current" /> End session
-            </Button>
-          )}
-        </CameraView>
+      <div className="grid flex-1 gap-3 p-3 lg:min-h-0 lg:grid-cols-[minmax(0,1fr)_360px]">
+        {/* Middle pane: camera on top (70), BuLLM Assistant below (30). */}
+        <section className="pane" aria-label="Inspection">
+          <div className="pane-h">
+            <span className="picon">◆</span>Inspection camera
+            <span className="rt">
+              {STATION.line} · {STATION.shift} · {today}
+            </span>
+          </div>
+          <div className="flex min-h-0 flex-1 flex-col overflow-hidden p-3">
+            <div className="flex min-h-0 flex-[7_1_0] flex-col">
+            <CameraView camera={camera} readiness={readiness}>
+              <Button
+                onClick={capture}
+                disabled={!active || busy || readiness.status !== "ready"}
+                className="h-9 min-w-36 bg-bull px-5 font-extrabold tracking-wide text-white hover:bg-bull/90"
+                aria-keyshortcuts="Space"
+              >
+                <Camera className="h-4 w-4" />
+                {busy && active ? "ANALYZING…" : "CAPTURE"}
+                {active && (
+                  <kbd className="ml-1 rounded bg-white/25 px-1.5 py-0.5 text-[10px] font-semibold">
+                    SPACE
+                  </kbd>
+                )}
+              </Button>
+              <p className="min-w-0 flex-1 text-xs txf">{hint}</p>
+              {active && (
+                <Button
+                  onClick={stop}
+                  disabled={busy}
+                  variant="outline"
+                  className="h-9 border-fail/40 text-fail hover:bg-[var(--red-fill)]"
+                >
+                  <Square className="h-3.5 w-3.5 fill-current" /> End session
+                </Button>
+              )}
+            </CameraView>
+            </div>
+            <AssistantPanel />
+          </div>
+        </section>
 
-        <aside aria-label="Results" className="flex flex-col gap-3 lg:min-h-0 lg:overflow-y-auto">
-          <LastResultCard />
-          <DailySummary />
-          <CaptureHistory />
-        </aside>
+        {/* Right pane: verdicts and today's output. */}
+        <section className="pane" aria-label="Output">
+          <div className="pane-h">
+            <span className="picon">⚡</span>Output
+            <span className="rt">Live inspection - Verdict</span>
+          </div>
+          <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto p-3">
+            <LastResultCard />
+            <DailySummary />
+            <CaptureHistory />
+          </div>
+        </section>
       </div>
     </div>
   );

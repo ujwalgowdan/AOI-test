@@ -1,7 +1,7 @@
-import { Check, Loader2, Minus, Plus, TriangleAlert, X } from "lucide-react";
+import { Check, Loader2, Minus, Plus, TriangleAlert } from "lucide-react";
 
 import { NativeSelect } from "@/components/ui/select";
-import { type UseCameraResult, ZOOM_MAX, ZOOM_MIN } from "@/hooks/useCamera";
+import { type UseCameraResult, ZOOM_LEVELS } from "@/hooks/useCamera";
 import type { ReadinessState } from "@/hooks/useReadinessProbe";
 import { cn } from "@/lib/utils";
 
@@ -10,18 +10,13 @@ interface Props {
   readiness?: ReadinessState;
   /** Toolbar rendered under the feed (capture / session controls). */
   children?: React.ReactNode;
-  /** Small row under the toolbar, right-aligned (e.g. the chatbot launcher). */
-  footer?: React.ReactNode;
 }
 
-const ZOOM_OPTIONS = Array.from({ length: ZOOM_MAX - ZOOM_MIN + 1 }, (_, i) => {
-  const z = ZOOM_MIN + i;
-  return { id: String(z), label: `${z}× zoom` };
-});
+const ZOOM_OPTIONS = ZOOM_LEVELS.map((z) => ({ id: String(z), label: `Zoom ${z}×` }));
 
 const BRACKET = "absolute h-5 w-5 border-teal-400"; // teal-400 = #2dd4bf
 
-export function CameraView({ camera, readiness, children, footer }: Props) {
+export function CameraView({ camera, readiness, children }: Props) {
   const { videoRef, ready, error, devices, deviceId, setDeviceId, zoom, setZoom, zoomIn, zoomOut } =
     camera;
   const live = ready && !error;
@@ -29,36 +24,41 @@ export function CameraView({ camera, readiness, children, footer }: Props) {
   return (
     <section
       aria-label="Inspection camera"
-      className="flex min-h-[420px] flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm"
+      className="flex min-h-0 flex-1 flex-col overflow-hidden"
+      style={{ minHeight: 280 }}
     >
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 px-4 py-2">
-        <h2 className="text-sm font-semibold text-slate-800">Inspection camera</h2>
-        <div className="flex items-center gap-2">
+      <div
+        className="flex flex-wrap items-center gap-2 border-b px-3 py-2"
+        style={{ borderColor: "var(--line)" }}
+      >
+        {devices.length > 0 && (
           <NativeSelect
-            aria-label="Zoom"
-            value={String(zoom)}
-            onChange={(v) => setZoom(Number(v))}
-            options={ZOOM_OPTIONS}
-            className="h-8 w-28 text-xs"
+            aria-label="Camera source"
+            value={deviceId ?? ""}
+            onChange={setDeviceId}
+            options={devices.map((d, i) => ({
+              id: d.deviceId,
+              label: d.label || `Camera ${i + 1}`,
+            }))}
+            className="h-8 w-44 text-xs"
           />
-          {devices.length > 0 && (
-            <NativeSelect
-              aria-label="Camera source"
-              value={deviceId ?? ""}
-              onChange={setDeviceId}
-              options={devices.map((d, i) => ({
-                id: d.deviceId,
-                label: d.label || `Camera ${i + 1}`,
-              }))}
-              className="h-8 w-48 text-xs"
-            />
-          )}
-        </div>
+        )}
+        <NativeSelect
+          aria-label="Zoom"
+          value={String(zoom)}
+          onChange={(v) => setZoom(Number(v))}
+          options={ZOOM_OPTIONS}
+          className="h-8 w-28 text-xs"
+        />
+        <span className="text-[11px] txf">Space to capture</span>
       </div>
 
       {/* The overlay must share this box with <video>: useCamera.computeSourceRoi
           maps the same fractions through the video's rendered rect. */}
-      <div className="relative min-h-[280px] flex-1 overflow-hidden bg-slate-950">
+      <div
+        className="relative min-h-[280px] flex-1 overflow-hidden"
+        style={{ background: "var(--feed)" }}
+      >
         {/* CSS scale must match the canvas-side crop applied in
             useCamera.grabFrame so the preview equals what /analyze sees. */}
         <video
@@ -96,12 +96,17 @@ export function CameraView({ camera, readiness, children, footer }: Props) {
         )}
 
         {live && (
-          <span className="absolute left-3 top-3 flex items-center gap-1.5 rounded-md bg-black/60 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-white">
-            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-red-500" /> Live
+          <span className="absolute left-3 top-3 flex items-center gap-1.5 rounded-md bg-red-600/90 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-white">
+            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white" /> Live
           </span>
         )}
 
-        {/* Detection badge. Driven by /api/detect/peek polling while a session is live. */}
+        {/* YELLOW / GREEN wire pills, top right: only the detected wire lights up. */}
+        {live && readiness && readiness.status !== "idle" && (
+          <WirePills detected={readiness.detected} expected={readiness.expected} />
+        )}
+
+        {/* Detection note, bottom centre: DETECTED only when both wires are in. */}
         {live && readiness && readiness.status !== "idle" && (
           <output
             className={cn(
@@ -112,8 +117,7 @@ export function CameraView({ camera, readiness, children, footer }: Props) {
           >
             {readiness.status === "ready" ? (
               <>
-                <Check className="h-3.5 w-3.5" /> Aligned -{" "}
-                {readiness.detected.length ? readiness.detected.join(" + ") : "both wires"} detected
+                <Check className="h-3.5 w-3.5" /> DETECTED - both wires aligned
               </>
             ) : (
               <>
@@ -124,19 +128,13 @@ export function CameraView({ camera, readiness, children, footer }: Props) {
           </output>
         )}
 
-        {/* Per-wire mini pills (informational only) from the same peek payload,
-            mirroring the LIVE badge in the opposite corner. */}
-        {live && readiness && readiness.status !== "idle" && (
-          <WireChips detected={readiness.detected} expected={readiness.expected} />
-        )}
-
         {live && (
-          <div className="absolute bottom-3 right-3 flex gap-1">
-            <ZoomButton onClick={zoomOut} disabled={zoom <= ZOOM_MIN} label="Zoom out (-)">
-              <Minus className="h-4 w-4" />
+          <div className="absolute bottom-3 right-3 flex flex-row gap-1.5">
+            <ZoomButton onClick={zoomIn} disabled={zoom >= ZOOM_LEVELS[ZOOM_LEVELS.length - 1]} label="Zoom in (+)">
+              <Plus className="h-3.5 w-3.5" />
             </ZoomButton>
-            <ZoomButton onClick={zoomIn} disabled={zoom >= ZOOM_MAX} label="Zoom in (+)">
-              <Plus className="h-4 w-4" />
+            <ZoomButton onClick={zoomOut} disabled={zoom <= ZOOM_LEVELS[0]} label="Zoom out (-)">
+              <Minus className="h-3.5 w-3.5" />
             </ZoomButton>
           </div>
         )}
@@ -164,11 +162,13 @@ export function CameraView({ camera, readiness, children, footer }: Props) {
       </div>
 
       {children && (
-        <div className="flex flex-wrap items-center gap-3 border-t border-slate-200 px-4 py-2.5">
+        <div
+          className="flex flex-wrap items-center gap-3 border-t px-3 py-2.5"
+          style={{ borderColor: "var(--line)" }}
+        >
           {children}
         </div>
       )}
-      {footer && <div className="flex justify-end px-4 pb-2.5">{footer}</div>}
     </section>
   );
 }
@@ -191,7 +191,7 @@ function ZoomButton({
       disabled={disabled}
       aria-label={label}
       title={label}
-      className="grid h-8 w-8 place-items-center rounded-md bg-black/60 text-white transition hover:bg-black/80 disabled:opacity-40"
+      className="grid h-6 w-6 place-items-center rounded-md bg-white/15 font-bold text-white transition hover:bg-white/25 disabled:opacity-40"
     >
       {children}
     </button>
@@ -208,7 +208,16 @@ export const WIRE_FILL: Record<string, string> = {
   white: "bg-white text-slate-900",
 };
 
-function WireChips({ detected, expected }: { detected: string[]; expected: string[] }) {
+const WIRE_DOT: Record<string, string> = {
+  yellow: "bg-yellow-300",
+  green: "bg-emerald-400",
+  red: "bg-red-400",
+  blue: "bg-blue-400",
+};
+
+/** One pill per expected wire, top right of the feed. The detected wire's pill
+ *  lights up in its colour; the other stays dim. */
+function WirePills({ detected, expected }: { detected: string[]; expected: string[] }) {
   return (
     <ul aria-label="Wire detection" className="absolute right-3 top-3 flex gap-1.5">
       {expected.map((color) => {
@@ -218,20 +227,24 @@ function WireChips({ detected, expected }: { detected: string[]; expected: strin
           <li
             key={color}
             title={full}
-            // Same inset, height and type as the LIVE badge; the border is
-            // transparent when found so both states keep the same height.
             className={cn(
-              "flex items-center gap-1 rounded-full border px-2 py-[3px] text-[10px] font-bold uppercase tracking-wider",
+              "flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider transition",
               found
-                ? cn("border-transparent", WIRE_FILL[color] ?? "bg-slate-600 text-white")
-                : "border-dashed border-amber-400 bg-black/60 text-slate-200",
+                ? color === "yellow"
+                  ? "border-yellow-300/70 bg-yellow-300/15 text-yellow-300"
+                  : color === "green"
+                    ? "border-emerald-400/70 bg-emerald-400/15 text-emerald-300"
+                    : "border-white/60 bg-white/15 text-white"
+                : "border-white/20 bg-white/5 text-white/40",
             )}
           >
-            {found ? (
-              <Check className="h-2.5 w-2.5" aria-hidden="true" />
-            ) : (
-              <X className="h-2.5 w-2.5 text-amber-400" aria-hidden="true" />
-            )}
+            <span
+              aria-hidden="true"
+              className={cn(
+                "h-1.5 w-1.5 rounded-full",
+                found ? cn(WIRE_DOT[color] ?? "bg-white", "shadow-[0_0_6px_currentColor]") : "bg-current opacity-40",
+              )}
+            />
             <span aria-hidden="true">{color}</span>
             <span className="sr-only">{full}</span>
           </li>

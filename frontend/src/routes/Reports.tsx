@@ -77,10 +77,11 @@ export default function Reports() {
   const onDownloadRange = () => downloadRangePdf(rangeStart, rangeEnd, setRangeDownloading);
 
   return (
-    <div className="mx-auto w-full max-w-6xl space-y-4 p-4">
-      <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-        <h2 className="text-lg font-bold text-slate-900">Reports</h2>
-        <p className="text-xs text-slate-500">Evidence and exports for the quality team</p>
+    <div className="mx-auto w-full max-w-6xl space-y-3 p-3">
+      <div className="pane-h" style={{ border: "none", padding: "4px 4px 0" }}>
+        <span className="picon">◆</span>
+        <h2 className="text-xs font-bold uppercase tracking-[0.06em]">Reports</h2>
+        <span className="rt">Evidence and exports for the quality team</span>
       </div>
 
       <fieldset className="flex flex-wrap gap-2">
@@ -95,7 +96,7 @@ export default function Reports() {
               "rounded-lg border px-3.5 py-1.5 text-xs font-semibold transition",
               preset === p.id
                 ? "border-innotech bg-innotech text-white shadow-sm"
-                : "border-slate-200 bg-white text-slate-600 hover:border-slate-400",
+                : "border-[var(--line)] bg-[var(--card)] text-[var(--ink2)] hover:border-[var(--line-strong)]",
             )}
           >
             {p.label}
@@ -120,13 +121,13 @@ export default function Reports() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            <p className="text-sm text-slate-600">
+            <p className="text-sm text-[var(--ink2)]">
               Pick a start and end date / time to bundle every capture in that window into a PDF
               report.
             </p>
             <div className="grid gap-3 sm:grid-cols-2">
               <label className="block">
-                <span className="mb-1 block text-xs uppercase tracking-wide text-slate-500">
+                <span className="mb-1 block text-xs uppercase tracking-wide text-[var(--faint)]">
                   Start
                 </span>
                 <Input
@@ -138,7 +139,7 @@ export default function Reports() {
                 />
               </label>
               <label className="block">
-                <span className="mb-1 block text-xs uppercase tracking-wide text-slate-500">
+                <span className="mb-1 block text-xs uppercase tracking-wide text-[var(--faint)]">
                   End
                 </span>
                 <Input
@@ -177,7 +178,7 @@ function SummaryStrip() {
   return (
     <Card className="flex flex-wrap items-center gap-x-10 gap-y-3 rounded-xl px-5 py-4">
       <PassRateDonut pass={pass} total={total} size={76} />
-      <Stat value={total} label="Captures today" className="text-slate-900" />
+      <Stat value={total} label="Captures today" className="text-[var(--ink)]" />
       <Stat value={pass} label="OK" className="text-pass" />
       <Stat value={fail} label="NOT OK" className="text-fail" />
     </Card>
@@ -188,7 +189,7 @@ function Stat({ value, label, className }: { value: number; label: string; class
   return (
     <div className="min-w-24">
       <div className={cn("text-2xl font-bold tabular-nums", className)}>{value}</div>
-      <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+      <div className="text-[11px] font-semibold uppercase tracking-wide text-[var(--faint)]">
         {label}
       </div>
     </div>
@@ -205,14 +206,14 @@ function NotOkStrip({ start, end }: { start: string; end: string }) {
 
   return (
     <Card className="rounded-xl p-4">
-      <h3 className="text-sm font-semibold text-slate-800">
+      <h3 className="text-sm font-semibold text-[var(--ink)]">
         NOT OK captures in the selected range
-        <span className="ml-2 text-xs font-normal text-slate-500">
+        <span className="ml-2 text-xs font-normal text-[var(--faint)]">
           tap a thumbnail to open full evidence
         </span>
       </h3>
       {rows.length === 0 ? (
-        <p className="mt-3 text-xs text-slate-500">
+        <p className="mt-3 text-xs text-[var(--faint)]">
           No NOT OK captures recorded on this station in this range.
         </p>
       ) : (
@@ -232,7 +233,7 @@ function NotOkStrip({ start, end }: { start: string; end: string }) {
                     className="h-full w-full object-cover transition group-hover:scale-105"
                   />
                 ) : (
-                  <ImageOff className="m-auto mt-8 h-6 w-6 text-slate-500" />
+                  <ImageOff className="m-auto mt-8 h-6 w-6 text-[var(--faint)]" />
                 )}
                 <span className="absolute left-1.5 top-1.5 rounded bg-black/60 px-1.5 text-[10px] text-white">
                   {localDate(new Date(r.at)) === localDate(new Date())
@@ -248,7 +249,7 @@ function NotOkStrip({ start, end }: { start: string; end: string }) {
           ))}
         </ul>
       )}
-      <p className="mt-3 text-[11px] text-slate-400">
+      <p className="mt-3 text-[11px] text-[var(--faint)]">
         Shows captures made in this browser. For the complete record, download the ZIP with Result
         set to NOT OK only.
       </p>

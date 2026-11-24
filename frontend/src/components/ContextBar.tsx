@@ -40,16 +40,16 @@ function ChipSelect({
       className={cn(
         "relative flex min-h-8 min-w-0 items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs transition",
         empty
-          ? "border-dashed border-slate-300 bg-white text-slate-500"
-          : "border-slate-200 bg-white text-slate-800 shadow-sm",
+          ? "border-dashed border-[var(--line-strong)] bg-[var(--card)] text-[var(--faint)]"
+          : "border-[var(--line)] bg-[var(--card)] text-[var(--ink)] shadow-sm",
         disabled
           ? "opacity-80"
-          : "focus-within:ring-2 focus-within:ring-innotech hover:border-slate-400",
+          : "focus-within:ring-2 focus-within:ring-innotech hover:border-[var(--line-strong)]",
       )}
     >
-      <span className={cn("shrink-0", empty ? "text-slate-400" : "text-innotech")}>{icon}</span>
+      <span className={cn("shrink-0", empty ? "text-[var(--faint)]" : "text-innotech")}>{icon}</span>
       <span className="min-w-0 break-words leading-snug">{empty ? placeholder : children}</span>
-      {!disabled && <ChevronDown className="h-3.5 w-3.5 shrink-0 text-slate-400" />}
+      {!disabled && <ChevronDown className="h-3.5 w-3.5 shrink-0 text-[var(--faint)]" />}
       <select
         aria-label={label}
         value={value}
@@ -74,7 +74,7 @@ function PersonText({ person, kind }: { person: Person; kind: string }) {
   return (
     <>
       <span className="font-semibold">{person.name}</span>{" "}
-      <span className="text-slate-500">
+      <span className="text-[var(--faint)]">
         {person.id} · {kind}
       </span>
     </>
@@ -118,7 +118,7 @@ export function ContextBar({
 
   return (
     <section aria-label="Session setup" className="flex flex-col gap-2">
-      <h2 className="px-1 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+      <h2 className="px-1 text-[11px] font-semibold uppercase tracking-wide text-[var(--faint)]">
         Session setup
       </h2>
       <Field caption="Operator">
@@ -148,11 +148,11 @@ export function ContextBar({
         </ChipSelect>
       </Field>
       <Field caption="Shift / line · date">
-        <div className="px-1 text-xs text-slate-700">
+        <div className="px-1 text-xs text-[var(--ink2)]">
           <span className="font-semibold">
             {STATION.shift} · {STATION.line}
           </span>
-          <div className="text-[11px] text-slate-500">{today}</div>
+          <div className="text-[11px] text-[var(--faint)]">{today}</div>
         </div>
       </Field>
       {cameras.length > 0 && (
@@ -176,7 +176,7 @@ export function ContextBar({
 function Field({ caption, children }: { caption: string; children: React.ReactNode }) {
   return (
     <div className="flex min-w-0 flex-col gap-1">
-      <span className="px-1 text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+      <span className="px-1 text-[10px] font-semibold uppercase tracking-wide text-[var(--faint)]">
         {caption}
       </span>
       {children}

@@ -12,6 +12,14 @@
     />
   </head>
   <body>
+    <script>
+      try {
+        document.documentElement.dataset.theme =
+          localStorage.getItem("aoi-theme") === "dark" ? "dark" : "light";
+      } catch {
+        document.documentElement.dataset.theme = "light";
+      }
+    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

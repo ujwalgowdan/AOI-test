@@ -15,7 +15,7 @@ export const SelectTrigger = React.forwardRef<
   <SelectPrimitive.Trigger
     ref={ref}
     className={cn(
-      "flex h-9 w-full items-center justify-between rounded-md border border-slate-300 bg-white px-3 text-sm shadow-sm",
+      "flex h-9 w-full items-center justify-between rounded-md border border-[var(--line-strong)] bg-[var(--card)] px-3 text-sm shadow-sm",
       "focus:outline-none focus:ring-2 focus:ring-innotech",
       "disabled:cursor-not-allowed disabled:opacity-50",
       className,
@@ -66,7 +66,7 @@ export const SelectContent = React.forwardRef<
     <SelectPrimitive.Content
       ref={ref}
       className={cn(
-        "relative z-50 max-h-96 min-w-32 overflow-hidden rounded-md border bg-white text-slate-900 shadow-md",
+        "relative z-50 max-h-96 min-w-32 overflow-hidden rounded-md border bg-[var(--card)] text-[var(--ink)] shadow-md",
         position === "popper" && "data-[side=bottom]:translate-y-1 data-[side=top]:-translate-y-1",
         className,
       )}
@@ -96,7 +96,7 @@ export const SelectLabel = React.forwardRef<
   <SelectPrimitive.Label
     ref={ref}
     className={cn(
-      "px-2 py-1.5 text-xs font-medium uppercase tracking-wide text-slate-500",
+      "px-2 py-1.5 text-xs font-medium uppercase tracking-wide text-[var(--faint)]",
       className,
     )}
     {...props}
@@ -112,7 +112,7 @@ export const SelectItem = React.forwardRef<
     ref={ref}
     className={cn(
       "relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm",
-      "focus:bg-slate-100 focus:outline-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+      "focus:bg-[var(--soft)] focus:outline-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
       className,
     )}
     {...props}
@@ -133,7 +133,7 @@ export const SelectSeparator = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <SelectPrimitive.Separator
     ref={ref}
-    className={cn("-mx-1 my-1 h-px bg-slate-200", className)}
+    className={cn("-mx-1 my-1 h-px bg-[var(--line)]", className)}
     {...props}
   />
 ));

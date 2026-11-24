@@ -27,7 +27,9 @@ export interface UseCameraResult {
 }
 
 export const ZOOM_MIN = 1;
-export const ZOOM_MAX = 5;
+export const ZOOM_MAX = 3;
+// Only 1x and 3x are offered (default 1x), per the station's UI spec.
+export const ZOOM_LEVELS = [1, 3] as const;
 
 // Cyan / blue alignment guide fractions. Must mirror `CameraView.tsx`
 // (`left-1/3 top-[37.5%] w-1/3 h-1/4`) — the backend detector keeps the
@@ -121,7 +123,7 @@ export function useCamera(): UseCameraResult {
   const [error, setError] = useState<string | null>(null);
   const [devices, setDevices] = useState<MediaDeviceInfo[]>([]);
   const [deviceId, setDeviceIdState] = useState<string | null>(null);
-  // Digital zoom factor (1 = no zoom, 5 = 5×). Mirrors the legacy detector's
+  // Digital zoom factor (1 = no zoom, 3 = 3×). Mirrors the legacy detector's
   // ZOOM_LEVEL: at zoom=N we crop the centre 1/N × 1/N of the source frame
   // and scale it back to full resolution, so both the live preview AND the
   // frame shipped to /analyze show the zoomed view.
@@ -130,11 +132,20 @@ export function useCamera(): UseCameraResult {
   zoomRef.current = zoom;
 
   const setZoom = useCallback((z: number) => {
-    const clamped = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, Math.round(z)));
-    setZoomState(clamped);
+    // Snap to the nearest offered level (1x or 3x).
+    const nearest = ZOOM_LEVELS.reduce((a, b) =>
+      Math.abs(b - z) < Math.abs(a - z) ? b : a,
+    );
+    setZoomState(nearest);
   }, []);
-  const zoomIn = useCallback(() => setZoom(zoomRef.current + 1), [setZoom]);
-  const zoomOut = useCallback(() => setZoom(zoomRef.current - 1), [setZoom]);
+  const zoomIn = useCallback(() => {
+    const next = ZOOM_LEVELS.find((z) => z > zoomRef.current);
+    if (next !== undefined) setZoom(next);
+  }, [setZoom]);
+  const zoomOut = useCallback(() => {
+    const prev = [...ZOOM_LEVELS].reverse().find((z) => z < zoomRef.current);
+    if (prev !== undefined) setZoom(prev);
+  }, [setZoom]);
 
   // Wrapping setDeviceId lets us record that the change came from the UI
   // (the picker in CameraView) and therefore the preference heuristic should

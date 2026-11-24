@@ -121,27 +121,27 @@ export function ChatPanel({ turns, setTurns, onClose }: Props) {
     <DialogPrimitive.Portal>
       <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/30" />
       <DialogPrimitive.Content
-        className="fixed inset-y-0 right-0 z-50 flex w-full flex-col border-l border-slate-200 bg-white shadow-2xl outline-none sm:max-w-md"
+        className="fixed inset-y-0 right-0 z-50 flex w-full flex-col border-l border-[var(--line)] bg-[var(--card)] shadow-2xl outline-none sm:max-w-md"
         onOpenAutoFocus={(e) => {
           e.preventDefault();
           inputRef.current?.focus();
         }}
       >
-        <header className="flex items-start gap-3 border-b border-slate-200 px-4 py-3">
+        <header className="flex items-start gap-3 border-b border-[var(--line)] px-4 py-3">
           <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-innotech/10 text-innotech">
             <Bot className="h-5 w-5" aria-hidden="true" />
           </span>
           <div className="min-w-0 flex-1">
-            <DialogPrimitive.Title className="text-base font-semibold text-slate-900">
+            <DialogPrimitive.Title className="text-base font-semibold text-[var(--ink)]">
               Assistant
             </DialogPrimitive.Title>
-            <DialogPrimitive.Description className="text-xs text-slate-500">
+            <DialogPrimitive.Description className="text-xs text-[var(--faint)]">
               Answers come only from inspection records and approved help cards. It can't change
               anything.
             </DialogPrimitive.Description>
           </div>
           <DialogPrimitive.Close
-            className="rounded-md p-1.5 text-slate-500 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-innotech"
+            className="rounded-md p-1.5 text-[var(--faint)] hover:bg-[var(--soft)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-innotech"
             aria-label="Close assistant"
           >
             <X className="h-4 w-4" />
@@ -167,7 +167,7 @@ export function ChatPanel({ turns, setTurns, onClose }: Props) {
               <p
                 key={t.id}
                 role="alert"
-                className="max-w-[90%] rounded-2xl rounded-bl-sm border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700"
+                className="max-w-[90%] rounded-2xl rounded-bl-sm border border-fail/30 bg-[var(--red-fill)] px-3 py-2 text-sm text-fail"
               >
                 {t.text}
               </p>
@@ -176,17 +176,17 @@ export function ChatPanel({ turns, setTurns, onClose }: Props) {
             ),
           )}
           {busy && (
-            <p className="flex items-center gap-2 text-sm text-slate-500">
+            <p className="flex items-center gap-2 text-sm text-[var(--faint)]">
               <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> Thinking…
             </p>
           )}
           <div ref={endRef} />
         </div>
 
-        <form onSubmit={submit} className="border-t border-slate-200 p-3">
+        <form onSubmit={submit} className="border-t border-[var(--line)] p-3">
           {turns.length > 0 && (
-            <details className="mb-2 rounded-md border border-slate-200 bg-slate-50/60 px-2 py-1 text-sm">
-              <summary className="cursor-pointer select-none py-0.5 text-xs font-medium text-slate-600">
+            <details className="mb-2 rounded-md border border-[var(--line)] bg-[var(--soft2)] px-2 py-1 text-sm">
+              <summary className="cursor-pointer select-none py-0.5 text-xs font-medium text-[var(--ink2)]">
                 Example questions
               </summary>
               <div className="max-h-48 overflow-y-auto py-2">
@@ -202,7 +202,7 @@ export function ChatPanel({ turns, setTurns, onClose }: Props) {
               maxLength={MAX_CHARS}
               placeholder="Ask about results, sessions or how to…"
               aria-label="Question"
-              className="h-10 min-w-0 flex-1 rounded-md border border-slate-300 px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-innotech"
+              className="h-10 min-w-0 flex-1 rounded-md border border-[var(--line-strong)] px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-innotech"
             />
             <Button
               type="submit"
@@ -213,7 +213,7 @@ export function ChatPanel({ turns, setTurns, onClose }: Props) {
               <Send className="h-4 w-4" />
             </Button>
           </div>
-          <p className="mt-1 text-right text-[11px] tabular-nums text-slate-400">
+          <p className="mt-1 text-right text-[11px] tabular-nums text-[var(--faint)]">
             {draft.length}/{MAX_CHARS}
           </p>
         </form>
@@ -222,7 +222,7 @@ export function ChatPanel({ turns, setTurns, onClose }: Props) {
   );
 }
 
-function Starters({
+export function Starters({
   onPick,
   disabled,
   compact = false,
@@ -233,10 +233,10 @@ function Starters({
 }) {
   return (
     <div className="space-y-3">
-      {!compact && <p className="text-sm text-slate-600">Pick a question or type your own:</p>}
+      {!compact && <p className="text-sm text-[var(--ink2)]">Pick a question or type your own:</p>}
       {STARTERS.map((g) => (
         <section key={g.group} aria-label={`${g.group} questions`}>
-          <h3 className="pb-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+          <h3 className="pb-1.5 text-[11px] font-semibold uppercase tracking-wide text-[var(--faint)]">
             {g.group}
           </h3>
           <ul className="flex flex-wrap gap-1.5">
@@ -262,14 +262,14 @@ function Chip({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-left text-xs text-slate-700 hover:border-innotech/40 hover:bg-innotech/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-innotech disabled:opacity-50"
+      className="rounded-full border border-[var(--line)] bg-[var(--soft2)] px-3 py-1 text-left text-xs text-[var(--ink2)] hover:border-innotech/40 hover:bg-innotech/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-innotech disabled:opacity-50"
     >
       {text}
     </button>
   );
 }
 
-function Answer({
+export function Answer({
   res,
   onAsk,
   onClose,
@@ -288,8 +288,8 @@ function Answer({
           className={cn(
             "flex gap-2 rounded-2xl rounded-bl-sm px-3 py-2 text-sm",
             refusal
-              ? "border border-amber-200 bg-amber-50 text-amber-900"
-              : "border border-slate-200 bg-slate-50 text-slate-800",
+              ? "border border-[var(--orange-line)] bg-[var(--orange-fill)] text-[var(--orange-ink-soft)]"
+              : "border border-[var(--line)] bg-[var(--soft2)] text-[var(--ink)]",
           )}
         >
           {refusal && <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />}
@@ -303,20 +303,20 @@ function Answer({
           href={withStationToken(res.image_url)}
           target="_blank"
           rel="noreferrer"
-          className="group block w-48 overflow-hidden rounded-lg border border-slate-200"
+          className="group block w-48 overflow-hidden rounded-lg border border-[var(--line)]"
         >
           <img
             src={withStationToken(res.image_url)}
             alt="Last failed capture"
             className="aspect-video w-full object-cover"
           />
-          <span className="flex items-center gap-1 px-2 py-1 text-[11px] text-slate-500 group-hover:text-innotech">
+          <span className="flex items-center gap-1 px-2 py-1 text-[11px] text-[var(--faint)] group-hover:text-innotech">
             <ExternalLink className="h-3 w-3" aria-hidden="true" /> Open full image
           </span>
         </a>
       )}
       {res.action && <ActionButton action={res.action} onClose={onClose} />}
-      {res.source && <p className="text-[11px] text-slate-400">Source: {res.source}</p>}
+      {res.source && <p className="text-[11px] text-[var(--faint)]">Source: {res.source}</p>}
       {res.suggestions.length > 0 && (
         <ul className="flex flex-wrap gap-1.5" aria-label="Suggested questions">
           {res.suggestions.map((q) => (
@@ -357,15 +357,15 @@ export function reflow(answer: string): Block[][] {
 
 function CardAnswer({ title, answer }: { title: string; answer: string }) {
   return (
-    <article className="space-y-2 rounded-2xl rounded-bl-sm border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 shadow-sm">
-      <h3 className="font-semibold text-slate-900">{title}</h3>
+    <article className="space-y-2 rounded-2xl rounded-bl-sm border border-[var(--line)] bg-[var(--card)] px-3 py-2 text-sm text-[var(--ink)] shadow-sm">
+      <h3 className="font-semibold text-[var(--ink)]">{title}</h3>
       {reflow(answer).map((para, i) => (
         // biome-ignore lint/suspicious/noArrayIndexKey: static card text
         <div key={i} className="space-y-1 break-words">
           {para.map((b, j) =>
             b.kind === "code" ? (
               // biome-ignore lint/suspicious/noArrayIndexKey: static card text
-              <code key={j} className="block rounded bg-slate-100 px-2 py-1 font-mono text-xs">
+              <code key={j} className="block rounded bg-[var(--soft)] px-2 py-1 font-mono text-xs">
                 {b.text}
               </code>
             ) : (
@@ -383,9 +383,9 @@ function CardAnswer({ title, answer }: { title: string; answer: string }) {
 
 function Facts({ columns, rows }: { columns: string[]; rows: ChatResponse["rows"] }) {
   return (
-    <div className="overflow-x-auto rounded-lg border border-slate-200">
+    <div className="overflow-x-auto rounded-lg border border-[var(--line)]">
       <table className="w-full text-xs">
-        <thead className="bg-slate-50 text-slate-600">
+        <thead className="bg-[var(--soft2)] text-[var(--ink2)]">
           <tr>
             {columns.map((c) => (
               <th key={c} scope="col" className="px-2 py-1.5 text-left align-bottom font-semibold">
@@ -397,10 +397,10 @@ function Facts({ columns, rows }: { columns: string[]; rows: ChatResponse["rows"
         <tbody>
           {rows.map((r, i) => (
             // biome-ignore lint/suspicious/noArrayIndexKey: rows are static per answer
-            <tr key={i} className="border-t border-slate-100">
+            <tr key={i} className="border-t border-[var(--line)]">
               {r.map((v, j) => (
                 // biome-ignore lint/suspicious/noArrayIndexKey: cells are positional
-                <td key={j} className="px-2 py-1.5 align-top tabular-nums text-slate-800">
+                <td key={j} className="px-2 py-1.5 align-top tabular-nums text-[var(--ink)]">
                   {v ?? "—"}
                 </td>
               ))}
@@ -451,7 +451,7 @@ function ActionButton({
         <FolderArchive className="mr-1.5 h-4 w-4" />
         {action.label}
       </Button>
-      <p className="text-[11px] text-slate-500">
+      <p className="text-[11px] text-[var(--faint)]">
         {action.start && action.end
           ? `Opens Reports with ${action.start} to ${action.end} filled in.`
           : "Opens Reports; pick the dates there."}{" "}

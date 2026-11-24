@@ -36,7 +36,8 @@ export function AdminGate({ children }: { children: React.ReactNode }) {
 
   if (!adminToken) {
     return (
-      <Card className="mx-auto max-w-md">
+      <div className="flex justify-center pt-10">
+      <Card className="w-full max-w-md shadow-lg">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Lock className="h-4 w-4" /> Admin sign-in required
@@ -44,7 +45,7 @@ export function AdminGate({ children }: { children: React.ReactNode }) {
         </CardHeader>
         <CardContent>
           <form onSubmit={submit} className="space-y-3">
-            <p className="text-sm text-slate-600">
+            <p className="text-sm text-[var(--ink2)]">
               Enter the admin password configured on the backend (<code>ADMIN_PASSWORD</code> in{" "}
               <code>.env</code>).
             </p>
@@ -59,13 +60,14 @@ export function AdminGate({ children }: { children: React.ReactNode }) {
               }}
               aria-invalid={error ? "true" : undefined}
             />
-            {error && <p className="text-sm text-red-600">{error}</p>}
+            {error && <p className="text-sm text-fail">{error}</p>}
             <Button type="submit" disabled={!value.trim() || submitting} className="w-full">
               {submitting ? "Verifying…" : "Unlock"}
             </Button>
           </form>
         </CardContent>
       </Card>
+      </div>
     );
   }
 

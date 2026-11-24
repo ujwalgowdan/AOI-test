@@ -91,12 +91,12 @@ export function InspectorsCard() {
       </CardHeader>
       <CardContent>
         {isLoading ? (
-          <p className="text-sm text-slate-500">Loading…</p>
+          <p className="text-sm text-[var(--faint)]">Loading…</p>
         ) : inspectors.length === 0 ? (
-          <p className="text-sm text-slate-500">No inspectors yet.</p>
+          <p className="text-sm text-[var(--faint)]">No inspectors yet.</p>
         ) : (
           <Table>
-            <TableHeader className="bg-transparent text-[10px] tracking-wider text-slate-400">
+            <TableHeader className="bg-transparent text-[10px] tracking-wider text-[var(--faint)]">
               <TableRow>
                 <TableHead>ID</TableHead>
                 <TableHead>Name</TableHead>
@@ -127,7 +127,7 @@ export function InspectorsCard() {
                       <Button
                         size="sm"
                         variant="outline"
-                        className="h-7 border-fail/40 px-2.5 text-fail hover:bg-red-50"
+                        className="h-7 border-fail/40 px-2.5 text-fail hover:bg-[var(--red-fill)]"
                         aria-label={`Delete ${i.name}`}
                         onClick={() => {
                           if (confirm(`Remove ${i.name} (${i.id})?`)) removeMut.mutate(i.id);

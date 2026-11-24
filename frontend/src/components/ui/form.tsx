@@ -68,8 +68,8 @@ export const FormLabel = React.forwardRef<
       ref={ref}
       htmlFor={id}
       className={cn(
-        error && "text-red-600",
-        "text-xs uppercase tracking-wide text-slate-500",
+        error && "text-fail",
+        "text-xs uppercase tracking-wide text-[var(--faint)]",
         className,
       )}
       {...props}
@@ -95,7 +95,7 @@ export const FormMessage = React.forwardRef<
   const body = error ? String(error.message ?? "") : children;
   if (!body) return null;
   return (
-    <p ref={ref} className={cn("text-xs text-red-600", className)} {...props}>
+    <p ref={ref} className={cn("text-xs text-fail", className)} {...props}>
       {body}
     </p>
   );

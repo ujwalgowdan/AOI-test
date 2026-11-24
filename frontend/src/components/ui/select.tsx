@@ -27,7 +27,7 @@ export const NativeSelect = React.forwardRef<HTMLSelectElement, NativeSelectProp
       onChange={(e) => onChange?.(e.target.value)}
       disabled={disabled}
       className={cn(
-        "h-9 w-full rounded-md border border-slate-300 bg-white px-3 text-sm shadow-sm",
+        "h-9 w-full rounded-md border border-[var(--line-strong)] bg-[var(--card)] px-3 text-sm shadow-sm",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-innotech",
         "disabled:cursor-not-allowed disabled:opacity-50",
         className,

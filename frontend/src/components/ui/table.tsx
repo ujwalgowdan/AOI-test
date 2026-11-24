@@ -17,7 +17,7 @@ export const TableHeader = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <thead
     ref={ref}
-    className={cn("border-b bg-slate-50 text-xs uppercase text-slate-600", className)}
+    className={cn("border-b bg-[var(--soft2)] text-xs uppercase text-[var(--ink2)]", className)}
     {...props}
   />
 ));
@@ -27,7 +27,7 @@ export const TableBody = React.forwardRef<
   HTMLTableSectionElement,
   React.HTMLAttributes<HTMLTableSectionElement>
 >(({ className, ...props }, ref) => (
-  <tbody ref={ref} className={cn("divide-y divide-slate-200", className)} {...props} />
+  <tbody ref={ref} className={cn("divide-y divide-[var(--line)]", className)} {...props} />
 ));
 TableBody.displayName = "TableBody";
 
@@ -35,7 +35,7 @@ export const TableRow = React.forwardRef<
   HTMLTableRowElement,
   React.HTMLAttributes<HTMLTableRowElement>
 >(({ className, ...props }, ref) => (
-  <tr ref={ref} className={cn("hover:bg-slate-50", className)} {...props} />
+  <tr ref={ref} className={cn("hover:bg-[var(--soft2)]", className)} {...props} />
 ));
 TableRow.displayName = "TableRow";
 

@@ -11,10 +11,11 @@ import { useSessionStore } from "@/store/session";
 
 export default function Settings() {
   return (
-    <div className="mx-auto w-full max-w-6xl space-y-4 p-4">
-      <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-        <h2 className="text-lg font-bold text-slate-900">Admin</h2>
-        <p className="text-xs text-slate-500">People who run and verify inspections</p>
+    <div className="mx-auto w-full max-w-6xl space-y-3 p-3">
+      <div className="pane-h" style={{ border: "none", padding: "4px 4px 0" }}>
+        <span className="picon">◆</span>
+        <h2 className="text-xs font-bold uppercase tracking-[0.06em]">Admin</h2>
+        <span className="rt">People who run and verify inspections</span>
       </div>
       <AdminGate>
         <div className="grid gap-4 lg:grid-cols-2">
@@ -31,8 +32,8 @@ export default function Settings() {
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="flex items-center justify-between gap-4 py-2 text-xs">
-      <dt className="text-slate-500">{label}</dt>
-      <dd className="text-right font-semibold text-slate-800">{children}</dd>
+      <dt className="text-[var(--faint)]">{label}</dt>
+      <dd className="text-right font-semibold text-[var(--ink)]">{children}</dd>
     </div>
   );
 }
@@ -46,8 +47,8 @@ function StationCard() {
   });
   return (
     <Card className="rounded-xl p-4">
-      <h3 className="text-sm font-semibold text-slate-800">Station</h3>
-      <dl className="mt-1 divide-y divide-slate-100">
+      <h3 className="text-sm font-semibold text-[var(--ink)]">Station</h3>
+      <dl className="mt-1 divide-y divide-[var(--line)]">
         <Row label="Line / station">
           {STATION.line} · {STATION.name}
         </Row>
@@ -65,8 +66,8 @@ function AdminCard() {
   const setAdminToken = useSessionStore((s) => s.setAdminToken);
   return (
     <Card className="rounded-xl p-4">
-      <h3 className="text-sm font-semibold text-slate-800">Admin</h3>
-      <dl className="mt-1 divide-y divide-slate-100">
+      <h3 className="text-sm font-semibold text-[var(--ink)]">Admin</h3>
+      <dl className="mt-1 divide-y divide-[var(--line)]">
         <Row label="Signed in as">
           <span className="inline-flex items-center gap-2">
             <Avatar name="Admin" /> Admin
@@ -76,7 +77,7 @@ function AdminCard() {
       </dl>
       <Button
         variant="outline"
-        className="mt-3 w-full border-fail/40 text-fail hover:bg-red-50"
+        className="mt-3 w-full border-fail/40 text-fail hover:bg-[var(--red-fill)]"
         onClick={() => setAdminToken(null)}
       >
         <LogOut className="h-4 w-4" /> Sign out (admin)

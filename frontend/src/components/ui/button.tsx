@@ -9,11 +9,12 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default: "bg-innotech text-white hover:bg-innotech-dark focus-visible:ring-innotech",
+        bull: "bg-bull text-white hover:bg-bull/90 focus-visible:ring-bull",
         success: "bg-pass text-white hover:bg-emerald-700 focus-visible:ring-pass",
         danger: "bg-fail text-white hover:bg-red-700 focus-visible:ring-fail",
         destructive: "bg-fail text-white hover:bg-red-700 focus-visible:ring-fail",
-        outline: "border border-slate-300 bg-white text-slate-700 hover:bg-slate-100",
-        ghost: "text-slate-700 hover:bg-slate-100",
+        outline: "border border-[var(--line-strong)] bg-[var(--card)] text-[var(--ink2)] hover:bg-[var(--soft)]",
+        ghost: "text-[var(--ink2)] hover:bg-[var(--soft)]",
         link: "text-innotech underline-offset-4 hover:underline",
       },
       size: {

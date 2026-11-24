@@ -44,10 +44,10 @@ export class ErrorBoundary extends Component<Props, State> {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            <p className="text-sm text-slate-600">
+            <p className="text-sm text-[var(--ink2)]">
               The UI encountered an unexpected error. The detection backend is unaffected.
             </p>
-            <pre className="max-h-48 overflow-auto rounded bg-slate-100 p-2 text-xs">
+            <pre className="max-h-48 overflow-auto rounded bg-[var(--soft)] p-2 text-xs">
               {this.state.error.message}
             </pre>
             <div className="flex gap-2">

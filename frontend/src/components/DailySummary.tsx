@@ -24,9 +24,9 @@ function dayLabel(iso?: string): string {
 
 export function Legend({ total, ok, notOk }: { total: number; ok: number; notOk: number }) {
   return (
-    <ul className="space-y-1.5 text-xs text-slate-700">
+    <ul className="space-y-1.5 text-xs text-[var(--ink2)]">
       <li className="flex items-center gap-2">
-        <span className="h-2.5 w-2.5 rounded-sm bg-slate-700" />
+        <span className="h-2.5 w-2.5 rounded-sm bg-[var(--ink2)]" />
         <b className="tabular-nums">{total}</b> total captures
       </li>
       <li className="flex items-center gap-2">
