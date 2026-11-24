@@ -1,6 +1,6 @@
 import { Moon, Sun, Volume2, VolumeX } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, useNavigate } from "react-router-dom";
 import { Toaster } from "sonner";
 
 import { elapsed, initials } from "@/lib/console";
@@ -22,7 +22,17 @@ export default function App() {
   useVerdictSound();
   // Hosted deployment is gated behind the fixed operator login.
   const [authed, setAuthed] = useState(isAuthed);
-  if (!authed) return <LoginPage onLogin={() => setAuthed(true)} />;
+  const navigate = useNavigate();
+  if (!authed)
+    return (
+      <LoginPage
+        onLogin={() => {
+          setAuthed(true);
+          // Always land on the session setup page after sign-in, wherever the URL was.
+          navigate("/", { replace: true });
+        }}
+      />
+    );
   return (
     <div className="flex h-full flex-col" style={{ background: "var(--bg)" }}>
       <header
