@@ -1,6 +1,5 @@
 import { Check, Loader2, Minus, Plus, TriangleAlert } from "lucide-react";
 
-import { NativeSelect } from "@/components/ui/select";
 import { type UseCameraResult, ZOOM_LEVELS } from "@/hooks/useCamera";
 import type { ReadinessState } from "@/hooks/useReadinessProbe";
 import { cn } from "@/lib/utils";
@@ -12,13 +11,10 @@ interface Props {
   children?: React.ReactNode;
 }
 
-const ZOOM_OPTIONS = ZOOM_LEVELS.map((z) => ({ id: String(z), label: `Zoom ${z}×` }));
-
 const BRACKET = "absolute h-5 w-5 border-teal-400"; // teal-400 = #2dd4bf
 
 export function CameraView({ camera, readiness, children }: Props) {
-  const { videoRef, ready, error, devices, deviceId, setDeviceId, zoom, setZoom, zoomIn, zoomOut } =
-    camera;
+  const { videoRef, ready, error, zoom, setZoom, zoomIn, zoomOut } = camera;
   const live = ready && !error;
 
   return (
@@ -31,25 +27,19 @@ export function CameraView({ camera, readiness, children }: Props) {
         className="flex flex-wrap items-center gap-2 border-b px-3 py-2"
         style={{ borderColor: "var(--line)" }}
       >
-        {devices.length > 0 && (
-          <NativeSelect
-            aria-label="Camera source"
-            value={deviceId ?? ""}
-            onChange={setDeviceId}
-            options={devices.map((d, i) => ({
-              id: d.deviceId,
-              label: d.label || `Camera ${i + 1}`,
-            }))}
-            className="h-8 w-44 text-xs"
-          />
-        )}
-        <NativeSelect
-          aria-label="Zoom"
-          value={String(zoom)}
-          onChange={(v) => setZoom(Number(v))}
-          options={ZOOM_OPTIONS}
-          className="h-8 w-28 text-xs"
-        />
+        <button
+          type="button"
+          aria-label={`Zoom ${zoom}×, click to switch to ${zoom === 3 ? 1 : 3}×`}
+          onClick={() => setZoom(zoom === 3 ? 1 : 3)}
+          className="h-8 rounded-md border px-3 text-xs font-semibold"
+          style={{
+            background: zoom === 3 ? "var(--orange)" : "var(--blue)",
+            borderColor: zoom === 3 ? "var(--orange)" : "var(--blue)",
+            color: zoom === 3 ? "var(--orange-ink)" : "var(--blue-ink)",
+          }}
+        >
+          Zoom {zoom}×
+        </button>
         <span className="text-[11px] txf">Space to capture</span>
       </div>
 
